@@ -24,3 +24,5 @@ void DrawMap(void);
 
 int GetMapEnter(D3DXVECTOR2 pos);
 void SetCurrentMap(int next);
+
+int CheckBlockdata(int BlockX, int BlockY, int BlockZ);

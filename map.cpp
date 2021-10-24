@@ -217,3 +217,12 @@ void SetCurrentMap(int next)
 {
 	g_CurrentPos = next;
 }
+
+int CheckBlockdata(int BlockX, int BlockY, int BlockZ)
+{
+	// BlockY‚Ì‚Æ‚±‚Å( (MAP_Y_MAX - 1) - BlockY)‚ğ‚µ‚Ä‚¢‚é‚Ì‚Í’†g‚ª10‚±‚Ì”z—ñ‚Å‚à0~9‚Å”‚¦‚é‚¸‚ê‚Ì•â³
+	int BlockData = 0;
+	BlockData = g_map_test_01[BlockZ][(MAP_Y_MAX - 1) - BlockY][BlockX];
+
+	return BlockData;
+}

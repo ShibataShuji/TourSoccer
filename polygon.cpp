@@ -493,15 +493,15 @@ void SetObject(int surface, int texNo, D3DXVECTOR3 Pos, D3DXVECTOR3 Rot, D3DXVEC
 			// 引数の座標などからオブジェクトのポリゴンの8この隅っこの座標を求める
 			// Left Rigt Up Down in Flont Behind
 			// 上手くいかなかった計算方法↓
-			//D3DXVECTOR3 LUF = D3DXVECTOR3(Pos.x - (Size.x / 2), Pos.y + (Size.y / 2), Pos.z - (Size.z / 2));
-			//D3DXVECTOR3 RUF = D3DXVECTOR3(Pos.x + (Size.x / 2), Pos.y + (Size.y / 2), Pos.z - (Size.z / 2));
-			//D3DXVECTOR3 LDF = D3DXVECTOR3(Pos.x - (Size.x / 2), Pos.y - (Size.y / 2), Pos.z - (Size.z / 2));
-			//D3DXVECTOR3 RDF = D3DXVECTOR3(Pos.x + (Size.x / 2), Pos.y - (Size.y / 2), Pos.z - (Size.z / 2));
+			/*D3DXVECTOR3 LUF = D3DXVECTOR3(Pos.x - (Size.x / 2), Pos.y + (Size.y / 2), Pos.z - (Size.z / 2));
+			D3DXVECTOR3 RUF = D3DXVECTOR3(Pos.x + (Size.x / 2), Pos.y + (Size.y / 2), Pos.z - (Size.z / 2));
+			D3DXVECTOR3 LDF = D3DXVECTOR3(Pos.x - (Size.x / 2), Pos.y - (Size.y / 2), Pos.z - (Size.z / 2));
+			D3DXVECTOR3 RDF = D3DXVECTOR3(Pos.x + (Size.x / 2), Pos.y - (Size.y / 2), Pos.z - (Size.z / 2));
 
-			//D3DXVECTOR3 LUB = D3DXVECTOR3(Pos.x - (Size.x / 2), Pos.y + (Size.y / 2), Pos.z + (Size.z / 2));
-			//D3DXVECTOR3 RUB = D3DXVECTOR3(Pos.x + (Size.x / 2), Pos.y + (Size.y / 2), Pos.z + (Size.z / 2));
-			//D3DXVECTOR3 LDB = D3DXVECTOR3(Pos.x - (Size.x / 2), Pos.y - (Size.y / 2), Pos.z + (Size.z / 2));
-			//D3DXVECTOR3 RDB = D3DXVECTOR3(Pos.x + (Size.x / 2), Pos.y - (Size.y / 2), Pos.z + (Size.z / 2));
+			D3DXVECTOR3 LUB = D3DXVECTOR3(Pos.x - (Size.x / 2), Pos.y + (Size.y / 2), Pos.z + (Size.z / 2));
+			D3DXVECTOR3 RUB = D3DXVECTOR3(Pos.x + (Size.x / 2), Pos.y + (Size.y / 2), Pos.z + (Size.z / 2));
+			D3DXVECTOR3 LDB = D3DXVECTOR3(Pos.x - (Size.x / 2), Pos.y - (Size.y / 2), Pos.z + (Size.z / 2));
+			D3DXVECTOR3 RDB = D3DXVECTOR3(Pos.x + (Size.x / 2), Pos.y - (Size.y / 2), Pos.z + (Size.z / 2));*/
 
 			// 上手く言った計算方法↓
 			D3DXVECTOR3 LUF = D3DXVECTOR3(Pos.x - Size.x, Pos.y + Size.y, Pos.z - Size.z);

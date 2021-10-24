@@ -225,13 +225,181 @@ void UpdatePlayer(void)
 	g_Player.nextpos.y += g_Player.move.y;
 	g_Player.nextpos.z += g_Player.move.z;
 
-	// surfaceはサイコロのどの面を描きますか。0:正面,1:後ろ側,2:上側,3:下側,4:右側,5:左側
+	// マップとの当たり判定
+	// nextposの時の座標を8隅を計算で求める,当たり判定なのでsizeではなくcolsizeを使う
+	D3DXVECTOR3 LUF = D3DXVECTOR3(g_Player.nextpos.x - (g_Player.colsize.x / 2), g_Player.nextpos.y + (g_Player.colsize.y / 2), g_Player.nextpos.z - (g_Player.colsize.z / 2));
+	D3DXVECTOR3 RUF = D3DXVECTOR3(g_Player.nextpos.x + (g_Player.colsize.x / 2), g_Player.nextpos.y + (g_Player.colsize.y / 2), g_Player.nextpos.z - (g_Player.colsize.z / 2));
+	D3DXVECTOR3 LDF = D3DXVECTOR3(g_Player.nextpos.x - (g_Player.colsize.x / 2), g_Player.nextpos.y - (g_Player.colsize.y / 2), g_Player.nextpos.z - (g_Player.colsize.z / 2));
+	D3DXVECTOR3 RDF = D3DXVECTOR3(g_Player.nextpos.x + (g_Player.colsize.x / 2), g_Player.nextpos.y - (g_Player.colsize.y / 2), g_Player.nextpos.z - (g_Player.colsize.z / 2));
 
-	// nextposを使って当たり判定の計算をする,最終的にposにnextposを適用する
-	// ①nextposからプレイヤーが今どの
+	D3DXVECTOR3 LUB = D3DXVECTOR3(g_Player.nextpos.x - (g_Player.colsize.x / 2), g_Player.nextpos.y + (g_Player.colsize.y / 2), g_Player.nextpos.z + (g_Player.colsize.z / 2));
+	D3DXVECTOR3 RUB = D3DXVECTOR3(g_Player.nextpos.x + (g_Player.colsize.x / 2), g_Player.nextpos.y + (g_Player.colsize.y / 2), g_Player.nextpos.z + (g_Player.colsize.z / 2));
+	D3DXVECTOR3 LDB = D3DXVECTOR3(g_Player.nextpos.x - (g_Player.colsize.x / 2), g_Player.nextpos.y - (g_Player.colsize.y / 2), g_Player.nextpos.z + (g_Player.colsize.z / 2));
+	D3DXVECTOR3 RDB = D3DXVECTOR3(g_Player.nextpos.x + (g_Player.colsize.x / 2), g_Player.nextpos.y - (g_Player.colsize.y / 2), g_Player.nextpos.z + (g_Player.colsize.z / 2));
+
+	// 8隅の座標を使い、マップのどのブロックからどのブロックまでを検索にかけるか計算する,intで小数点以下切り捨てされる
+	int Block_Left  = LUF.x / MAPCHIP_SIZE_X;			// 左端
+	int Block_Right = RUF.x / MAPCHIP_SIZE_X + 1;		// 右端,小数点以下切り捨てされるので+1する
+	int Block_Up    = LUF.y / MAPCHIP_SIZE_Y + 1;		// 上端,小数点以下切り捨てされるので+1する
+	int Block_Down  = LUB.y / MAPCHIP_SIZE_Y;		// 上端,小数点以下切り捨てされるので+1する
+	int Block_Front = LUF.z / MAPCHIP_SIZE_Z;			// 前端
+	int Block_Back  = LUB.z / MAPCHIP_SIZE_Z + 1;		// 奥端,小数点以下切り捨てされるので+1する
+
+	// +1したときにマップの最大値から溢れないようにする
+	if (Block_Right >= MAP_X_MAX)
+		Block_Right = MAP_X_MAX - 1;
+	if (Block_Up >= MAP_Y_MAX)
+		Block_Up = MAP_Y_MAX - 1;
+	if (Block_Back >= MAP_Z_MAX)
+		Block_Back = MAP_Z_MAX - 1;
+
+
+	// moveからどの面が当たることが予想されるかを計算する,動いていないと計算の対象外にする
+	int ColX = -1;		// moveから面のどちらが当たっているかを調べる,-1:判定を行わない,0:左,1:右
+	int ColY = -1;		// moveから面のどちらが当たっているかを調べる,-1:判定を行わない,0:下,1:上
+	int ColZ = -1;		// moveから面のどちらが当たっているかを調べる,-1:判定を行わない,0:前,1:奥
+	if (g_Player.move.x > 0.0f)		// プレイヤーは右に進んでいる
+		ColX = 0;
+	if (g_Player.move.x < 0.0f)		// プレイヤーは左に進んでいる
+		ColX = 1;
+	if (g_Player.move.y > 0.0f)		// プレイヤーは上に進んでいる
+		ColX = 0;
+	if (g_Player.move.y < 0.0f)		// プレイヤーは下に進んでいる
+		ColX = 1;
+	if (g_Player.move.z > 0.0f)		// プレイヤーは奥に進んでいる
+		ColX = 0;
+	if (g_Player.move.z < 0.0f)		// プレイヤーは手前に進んでいる
+		ColX = 1;
+
+	// 当たっている範囲のブロックから当たり判定のあるブロックかどうかをマップチップから調べる
+	for (int z = Block_Front; z <= Block_Back; z++)
+	{
+		for (int y = Block_Left; y <= Block_Right; y++)
+		{
+			for (int x = Block_Left; x <= Block_Right; x++)
+			{
+				// そのブロックが当たり判定があるブロックかどうか調べる
+				int BlockData = CheckBlockdata(x, y, z);
+				// そのブロックデータが 1 だったら当たり判定があるので中で当たり判定の計算し、当たっている面を1面に決める
+				if (BlockData == 1)
+				{
+					// プレイヤーとブロックの接している長さをx,y,z座標のそれぞれで調べて最も長いところが当たり判定があることにする
+					float ContactLengthX = -1.0f;		// 長さは必ず正の数になるので負の数だと接していないことになる
+					float ContactLengthY = -1.0f;
+					float ContactLengthZ = -1.0f;
+					float ContactLengthStart = 0.0f;	// ブロックと接している座標の左,下,手前の座標
+					float ContactLengthFinish = 0.0f;	// ブロックと接している座標の右,上,奥の座標
+					// xの接している長さ
+					ContactLengthStart = (x * MAPCHIP_SIZE_X) - (MAPCHIP_SIZE_X / 2);	// 左端,初期値はブロックの長さそのまま
+					ContactLengthFinish = (x * MAPCHIP_SIZE_X) + (MAPCHIP_SIZE_X / 2);	// 右端
+					if (ContactLengthStart < g_Player.nextpos.x - (g_Player.colsize.x / 2))		// スタート地点(ブロックの左端)がプレイヤーの左端より小さければプレイヤーの左端をスタート地点とする
+						ContactLengthStart = g_Player.nextpos.x - (g_Player.colsize.x / 2);
+					if (ContactLengthFinish > g_Player.nextpos.x + (g_Player.colsize.x / 2))		// スタート地点(ブロックの左端)がプレイヤーの右端より大きければプレイヤーの右端をフィニッシュ地点とする
+						ContactLengthFinish = g_Player.nextpos.x + (g_Player.colsize.x / 2);
+					// 最期にフィニッシュ(右端)からスタート(左端)をひくと接している長さが求められる
+					ContactLengthX = ContactLengthFinish - ContactLengthStart;
+					// yの接している長さ
+					ContactLengthStart = (y * MAPCHIP_SIZE_Y) - (MAPCHIP_SIZE_Y / 2);	// 下端,初期値はブロックの長さそのまま
+					ContactLengthFinish = (y * MAPCHIP_SIZE_Y) + (MAPCHIP_SIZE_Y / 2);	// 上端
+					if (ContactLengthStart < g_Player.nextpos.y - (g_Player.colsize.y / 2))
+						ContactLengthStart = g_Player.nextpos.y - (g_Player.colsize.y / 2);
+					if (ContactLengthFinish > g_Player.nextpos.y + (g_Player.colsize.y / 2))
+						ContactLengthFinish = g_Player.nextpos.y + (g_Player.colsize.y / 2);
+					// 最期にフィニッシュからスタートをひくと接している長さが求められる
+					ContactLengthY = ContactLengthFinish - ContactLengthStart;
+					// Zの接している長さ
+					ContactLengthStart = (z * MAPCHIP_SIZE_Z) - (MAPCHIP_SIZE_Z / 2);	// 前端,初期値はブロックの長さそのまま
+					ContactLengthFinish = (z * MAPCHIP_SIZE_Z) + (MAPCHIP_SIZE_Z / 2);	// 奥端
+					if (ContactLengthStart < g_Player.nextpos.z - (g_Player.colsize.z / 2))
+						ContactLengthStart = g_Player.nextpos.z - (g_Player.colsize.z / 2);
+					if (ContactLengthFinish > g_Player.nextpos.z + (g_Player.colsize.z / 2))
+						ContactLengthFinish = g_Player.nextpos.z + (g_Player.colsize.z / 2);
+					// 最期にフィニッシュからスタートをひくと接している長さが求められる
+					ContactLengthZ = ContactLengthFinish - ContactLengthStart;
+
+					// x,y,z,3つの接している長さから1番長いものを選出する
+					int BestContact = 0;					// 0:x,1:y,2:z
+					if (ContactLengthX < ContactLengthY)
+					{
+						if (ContactLengthY < ContactLengthZ)
+							BestContact = 2;
+						else
+							BestContact = 1;
+					}
+					else
+					{
+						if (ContactLengthX < ContactLengthZ)
+							BestContact = 2;
+						else
+							BestContact = 0;
+					}
+
+					// BestContactとmoveによるColX,ColY,ColZから立方体のどの面と当たっているのかを求める
+					int ColSurface = -1;				// ColSurfaceはサイコロのどの面を描くか。0:正面,1:後ろ側,2:上側,3:下側,4:右側,5:左側
+					switch (BestContact)
+					{
+					case 0:
+						if (ColX == 0)
+							ColSurface = 5;
+						if (ColX == 1)
+							ColSurface = 4;
+						break;
+					case 1:
+						if (ColY == 0)
+							ColSurface = 3;
+						if (ColY == 1)
+							ColSurface = 2;
+						break;
+					case 2:
+						if (ColZ == 0)
+							ColSurface = 0;
+						if (ColZ == 1)
+							ColSurface = 1;
+						break;
+					}
+
+					// 当たっている面からプレイヤーの座標を修正する
+					switch (ColSurface)
+					{
+					case 0:
+						g_Player.nextpos.z = (z * MAPCHIP_SIZE_Z) - (g_Player.colsize.z / 2);
+						break;
+					case 1:
+						g_Player.nextpos.z = (z * MAPCHIP_SIZE_Z) + (g_Player.colsize.z / 2);
+						break;
+					case 2:
+						g_Player.nextpos.y = (y * MAPCHIP_SIZE_Y) + (g_Player.colsize.y / 2);
+						break;
+					case 3:
+						g_Player.nextpos.y = (y * MAPCHIP_SIZE_Y) - (g_Player.colsize.y / 2);
+						break;
+					case 4:
+						g_Player.nextpos.x = (x * MAPCHIP_SIZE_X) + (g_Player.colsize.x / 2);
+						break;
+					case 5:
+						g_Player.nextpos.x = (x * MAPCHIP_SIZE_X) - (g_Player.colsize.x / 2);
+						break;
+					}
+				}
+
+			}
+		}
+
+	}
+
+
+	//int Block_Left = LUF.x / MAPCHIP_SIZE_X;			// 左端
+	//int Block_Right = RUF.x / MAPCHIP_SIZE_X + 1;		// 右端,小数点以下切り捨てされるので+1する
+	//int Block_Up = LUF.y / MAPCHIP_SIZE_Y + 1;		// 上端,小数点以下切り捨てされるので+1する
+	//int Block_Front = LUF.z / MAPCHIP_SIZE_Z;			// 前端
+	//int Block_Back = LUB.z / MAPCHIP_SIZE_Z + 1;		// 奥端,小数点以下切り捨てされるので+1する
 
 
 
+	// 当たり判定等の計算をnextposで行ったあと最後にposに反映させる
+	g_Player.pos.x = g_Player.nextpos.x;
+	g_Player.pos.y = g_Player.nextpos.y;
+	g_Player.pos.z = g_Player.nextpos.z;
 
 	////マップ1へ切り替える
 	//if (GetKeyboardTrigger(DIK_L))
@@ -278,7 +446,7 @@ void DrawPlayer(void)
 	// 今はまだマップが実装されてないからそのまま。
 	g_Player.drawpos = g_Player.pos;
 
-	SetScore(g_Player.drawpos.x);
+	SetScore(g_Player.pos.y);
 
 	// 毎フレーム更新するので最期の消えるカウントは 1 
 	SetObject(0, g_Player.texNo, g_Player.drawpos, g_Player.rot, g_Player.size, g_Player.scl,
