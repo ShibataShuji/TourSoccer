@@ -15,6 +15,7 @@
 //#include "sound.h"
 //#include "bg.h"
 #include "polygon.h"
+#include "map.h"
 
 
 //*****************************************************************************
@@ -50,9 +51,11 @@ HRESULT InitPlayer(void)
 	g_Player.texNo = LoadTexture("data/TEXTURE/player.png");
 
 	// 位置・回転・スケールの初期設定
-	g_Player.size = D3DXVECTOR3(100.0f, 100.0f, 0.0f);		// 配置の大きさ
-	g_Player.pos     = D3DXVECTOR3(0.0f, 64.0f + (g_Player.size.y / 2), 0.0f);			// 配置する座標
-	g_Player.oldpos  = D3DXVECTOR3(0.0f, 64.0f + (g_Player.size.y / 2), 0.0f);			// 配置する座標
+	g_Player.size	 = D3DXVECTOR3(PLAYER_SIZE_X, PLAYER_SIZE_Y, PLAYER_SIZE_Z);							// 配置の大きさ
+	g_Player.colsize = D3DXVECTOR3(PLAYER_COL_SIZE_X, PLAYER_COL_SIZE_Y, PLAYER_COL_SIZE_Z);							// 当たり判定の大きさ
+	g_Player.pos     = D3DXVECTOR3(0.0f, (MAPCHIP_SIZE_Y / 2) + (g_Player.size.y / 2), 0.0f);			// 配置する座標
+	g_Player.oldpos  = D3DXVECTOR3(0.0f, (MAPCHIP_SIZE_Y / 2) + (g_Player.size.y / 2), 0.0f);			// 前のフレームの座標を保存
+	g_Player.nextpos = D3DXVECTOR3(0.0f, (MAPCHIP_SIZE_Y / 2) + (g_Player.size.y / 2), 0.0f);			// 次のフレームの座標の計算で使用
 	g_Player.drawpos = D3DXVECTOR3(0.0f, 0.0f, 0.0f);			// 配置する座標
 	g_Player.rot     = D3DXVECTOR3(0.0f, 0.0f, 0.0f);			// 配置の角度
 	g_Player.scl     = D3DXVECTOR3(1.0f, 1.0f, 1.0f);			// 大きさの倍率
@@ -86,7 +89,7 @@ void UpdatePlayer(void)
 	g_Player.oldpos = g_Player.pos;
 
 
-	// move移動の力の設定(アップデートの最初に書く)(0.0fに近づけていく)
+	// move移動の力の設定(アップデートの最初に書くといいかも)(0.0fに近づけていく)
 	float friction;					// 摩擦力,抵抗力(床とか空中とかそういうのによって変更する)
 	float AirResistance;			// 空気抵抗
 	float max_fall_speed = 8.0f;	// 落下による最大速度
@@ -217,10 +220,15 @@ void UpdatePlayer(void)
 	}
 
 
-	// moveによる移動をpos座標に適用させる
-	g_Player.pos.x += g_Player.move.x;
-	g_Player.pos.y += g_Player.move.y;
-	g_Player.pos.z += g_Player.move.z;
+	// moveによる移動をnextpos座標に適用させる
+	g_Player.nextpos.x += g_Player.move.x;
+	g_Player.nextpos.y += g_Player.move.y;
+	g_Player.nextpos.z += g_Player.move.z;
+
+	// surfaceはサイコロのどの面を描きますか。0:正面,1:後ろ側,2:上側,3:下側,4:右側,5:左側
+
+	// nextposを使って当たり判定の計算をする,最終的にposにnextposを適用する
+	// ①nextposからプレイヤーが今どの
 
 
 

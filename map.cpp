@@ -105,14 +105,14 @@ HRESULT InitMap(void)
 
 
 
-	// ‚Ä‚·‚Æ
-	for (int i = 0; i < 3; i++)
-	{
-		SetObject(2, Tex_field000, D3DXVECTOR3(0.0f + TEST01 * i, 0.0f + TEST01 * i, 0.0f + TEST01 * i),
-			D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR3(TEST01, TEST01, TEST01), D3DXVECTOR3(1.0f, 1.0f, 1.0f),
-			0.0f, 0.0f, 1.0f, 1.0f,
-			D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f), false, D3DXVECTOR3(0.0f, 0.0f, 0.0f), 1);
-	}
+	//// ‚Ä‚·‚Æ
+	//for (int i = 0; i < 3; i++)
+	//{
+	//	SetObject(2, Tex_field000, D3DXVECTOR3(0.0f + TEST01 * i, 0.0f + TEST01 * i, 0.0f + TEST01 * i),
+	//		D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR3(TEST01, TEST01, TEST01), D3DXVECTOR3(1.0f, 1.0f, 1.0f),
+	//		0.0f, 0.0f, 1.0f, 1.0f,
+	//		D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f), false, D3DXVECTOR3(0.0f, 0.0f, 0.0f), 1);
+	//}
 
 
 
@@ -172,21 +172,6 @@ void DrawMap(void)
 			}
 		}
 	}
-
-	//SetObject(2, Tex_field000, D3DXVECTOR3(0.0f + (0 * MAPCHIP_SIZE_X), 0.0f + (((MAP_Y_MAX - 1) - 9) * MAPCHIP_SIZE_Y), 0.0f + (0 * MAPCHIP_SIZE_Z)),
-	//	D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR3(MAPCHIP_SIZE_X, MAPCHIP_SIZE_Y, MAPCHIP_SIZE_Z), D3DXVECTOR3(1.0f, 1.0f, 1.0f),
-	//	0.0f, 0.0f, 1.0f, 1.0f,
-	//	D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f), false, D3DXVECTOR3(0.0f, 0.0f, 0.0f), 1);
-
-	//SetObject(2, Tex_field000, D3DXVECTOR3(0.0f + (1 * MAPCHIP_SIZE_X), 0.0f + (((MAP_Y_MAX - 1) - 9) * MAPCHIP_SIZE_Y), 0.0f + (0 * MAPCHIP_SIZE_Z)),
-	//	D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR3(MAPCHIP_SIZE_X, MAPCHIP_SIZE_Y, MAPCHIP_SIZE_Z), D3DXVECTOR3(1.0f, 1.0f, 1.0f),
-	//	0.0f, 0.0f, 1.0f, 1.0f,
-	//	D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f), false, D3DXVECTOR3(0.0f, 0.0f, 0.0f), 1);
-
-	//SetObject(0, Tex_field000, D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f),
-	//	D3DXVECTOR3(SCREEN_WIDTH, SCREEN_HEIGHT, 1.0f), D3DXVECTOR3(1.0f, 1.0f, 1.0f),
-	//	0.0f, 0.0f, 1.0f, 1.0f,
-	//	D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f), false, D3DXVECTOR3(0.0f, 0.0f, 0.0f), 1);
 
 
 	//ƒŒƒCƒ„[‚O‚Ì•\Ž¦

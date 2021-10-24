@@ -15,15 +15,26 @@
 //*****************************************************************************
 // マクロ定義
 //*****************************************************************************
+#define PLAYER_SIZE_X	(100.0f)
+#define PLAYER_SIZE_Y	(100.0f)
+#define PLAYER_SIZE_Z	(0.0f)			// 紙みたいなペラペラなのでここは0でOK,逆に数を入れると立方体になるので表示が手前にきてしまう。(player専用の表示方法にすればOK)
+
+#define PLAYER_COL_SIZE_X	(100.0f)
+#define PLAYER_COL_SIZE_Y	(100.0f)
+#define PLAYER_COL_SIZE_Z	(5.0f)		// 表示的には違うけど当たり判定は作っておく。
+
+
 // プレイヤー構造体
 struct PLAYER
 {
 
 	D3DXVECTOR3		pos;		// 位置
 	D3DXVECTOR3		oldpos;		// 前の位置
+	D3DXVECTOR3		nextpos;	// 次の位置
 	D3DXVECTOR3		drawpos;	// 実際の表示の位置
 	D3DXVECTOR3		rot;		// 向き(回転)
 	D3DXVECTOR3		size;		// 大きさ
+	D3DXVECTOR3		colsize;	// 当たり判定の大きさ
 	D3DXVECTOR3		scl;		// 大きさの倍率
 
 	int				texNo;		// テクスチャ
