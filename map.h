@@ -26,3 +26,6 @@ int GetMapEnter(D3DXVECTOR2 pos);
 void SetCurrentMap(int next);
 
 int CheckBlockdata(int BlockX, int BlockY, int BlockZ);
+void ChangeBlockdata(int changenum, int BlockX, int BlockY, int BlockZ);
+
+bool CheckHit(D3DXVECTOR3 obj1_pos, D3DXVECTOR3 obj1_colsize, D3DXVECTOR3 obj2_pos, D3DXVECTOR3 obj2_colsize);

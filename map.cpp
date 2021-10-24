@@ -33,15 +33,15 @@
 int g_map_test_01[4][10][20] = {
 	{
 		// 1番手前
-		{0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0},
-		{0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0},
-		{0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0},
-		{0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0},
-		{0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0},
-		{0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0},
-		{0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0},
-		{0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0},
-		{0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0},
+		{0,0,0,1,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0},
+		{0,0,0,1,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0},
+		{0,0,0,1,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0},
+		{0,0,0,1,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0},
+		{0,0,0,1,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0},
+		{0,0,0,1,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0},
+		{0,0,0,1,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0},
+		{0,0,0,1,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0},
+		{0,0,0,1,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0},
 		{1,1,1,1,1, 1,1,1,1,1, 1,1,1,1,1, 1,1,1,1,1}
     },
 	{
@@ -226,3 +226,83 @@ int CheckBlockdata(int BlockX, int BlockY, int BlockZ)
 
 	return BlockData;
 }
+
+void ChangeBlockdata(int changenum, int BlockX, int BlockY, int BlockZ)
+{
+	g_map_test_01[BlockZ][(MAP_Y_MAX - 1) - BlockY][BlockX] = changenum;
+
+	return ;
+}
+
+//int CheckHit(int x1, int y1, int w1, int h1, int x2, int y2, int w2, int h2)
+//{
+//	int L1 = x1;      // 左
+//	int R1 = x1 + w1; // 右(左+横幅)
+//	int L2 = x2;      // 左
+//	int R2 = x2 + w2; // 右(左+横幅)
+//
+//	if (R1 <= L2) return 0; //< 線上も当たらないことにする
+//	if (R2 <= L1) return 0; //< 線上も当たらないことにする
+//
+//	int U1 = y1;      // 上
+//	int D1 = y1 + h1; // 下(上+縦幅)			// ここら辺のプラスマイナスおかしいかも。
+//	int U2 = y2;      // 上
+//	int D2 = y2 + h2; // 下(上+縦幅)
+//
+//	if (D1 <= U2) return 0; //<  線上も当たらないことにする
+//	if (D2 <= U1) return 0; //< 線上も当たらないことにする
+//
+//	// それ以外の場合は当たっている
+//	return 1;
+//}
+
+bool CheckHit(D3DXVECTOR3 obj1_pos, D3DXVECTOR3 obj1_colsize, D3DXVECTOR3 obj2_pos, D3DXVECTOR3 obj2_colsize)
+{
+	float L1 = obj1_pos.x - (obj1_colsize.x / 2);		 // 左
+	float R1 = obj1_pos.x + (obj1_colsize.x / 2);		 // 右
+	float L2 = obj2_pos.x - (obj2_colsize.x / 2);		 // 左
+	float R2 = obj2_pos.x + (obj2_colsize.x / 2);		 // 右
+
+	if (R1 <= L2) return false; //< 線上も当たらないことにする
+	if (R2 <= L1) return false; //< 線上も当たらないことにする
+
+	float U1 = obj1_pos.y + (obj1_colsize.y / 2);       // 上
+	float D1 = obj1_pos.y - (obj1_colsize.y / 2);		// 下(上+縦幅) ここら辺のプラスマイナスおかしいかも。
+	float U2 = obj2_pos.y + (obj2_colsize.y / 2);       // 上
+	float D2 = obj2_pos.y - (obj2_colsize.y / 2);		// 下(上+縦幅)
+
+	if (U1 <= D2) return false; //<  線上も当たらないことにする
+	if (U2 <= D1) return false; //< 線上も当たらないことにする
+
+	float F1 = obj1_pos.z - (obj1_colsize.z / 2);		// 手前
+	float B1 = obj1_pos.z + (obj1_colsize.z / 2);		// 奥
+	float F2 = obj2_pos.z - (obj2_colsize.z / 2);		// 手前
+	float B2 = obj2_pos.z + (obj2_colsize.z / 2);		// 奥
+
+	if (B1 <= F2) return false; //<  線上も当たらないことにする
+	if (B2 <= F1) return false; //< 線上も当たらないことにする
+
+	// それ以外の場合は当たっている
+	return true;
+}
+
+//// obj1 それぞれの8隅を計算で求める
+//D3DXVECTOR3 obj1_LUF = D3DXVECTOR3(obj1_pos.x - (obj1_colsize.x / 2), obj1_pos.y + (obj1_colsize.y / 2), obj1_pos.z - (obj1_colsize.z / 2));
+//D3DXVECTOR3 obj1_RUF = D3DXVECTOR3(obj1_pos.x + (obj1_colsize.x / 2), obj1_pos.y + (obj1_colsize.y / 2), obj1_pos.z - (obj1_colsize.z / 2));
+//D3DXVECTOR3 obj1_LDF = D3DXVECTOR3(obj1_pos.x - (obj1_colsize.x / 2), obj1_pos.y - (obj1_colsize.y / 2), obj1_pos.z - (obj1_colsize.z / 2));
+//D3DXVECTOR3 obj1_RDF = D3DXVECTOR3(obj1_pos.x + (obj1_colsize.x / 2), obj1_pos.y - (obj1_colsize.y / 2), obj1_pos.z - (obj1_colsize.z / 2));
+
+//D3DXVECTOR3 obj1_LUB = D3DXVECTOR3(obj1_pos.x - (obj1_colsize.x / 2), obj1_pos.y + (obj1_colsize.y / 2), obj1_pos.z + (obj1_colsize.z / 2));
+//D3DXVECTOR3 obj1_RUB = D3DXVECTOR3(obj1_pos.x + (obj1_colsize.x / 2), obj1_pos.y + (obj1_colsize.y / 2), obj1_pos.z + (obj1_colsize.z / 2));
+//D3DXVECTOR3 obj1_LDB = D3DXVECTOR3(obj1_pos.x - (obj1_colsize.x / 2), obj1_pos.y - (obj1_colsize.y / 2), obj1_pos.z + (obj1_colsize.z / 2));
+//D3DXVECTOR3 obj1_RDB = D3DXVECTOR3(obj1_pos.x + (obj1_colsize.x / 2), obj1_pos.y - (obj1_colsize.y / 2), obj1_pos.z + (obj1_colsize.z / 2));
+//// obj2
+//D3DXVECTOR3 obj2_LUF = D3DXVECTOR3(obj2_pos.x - (obj2_colsize.x / 2), obj2_pos.y + (obj2_colsize.y / 2), obj2_pos.z - (obj2_colsize.z / 2));
+//D3DXVECTOR3 obj2_RUF = D3DXVECTOR3(obj2_pos.x + (obj2_colsize.x / 2), obj2_pos.y + (obj2_colsize.y / 2), obj2_pos.z - (obj2_colsize.z / 2));
+//D3DXVECTOR3 obj2_LDF = D3DXVECTOR3(obj2_pos.x - (obj2_colsize.x / 2), obj2_pos.y - (obj2_colsize.y / 2), obj2_pos.z - (obj2_colsize.z / 2));
+//D3DXVECTOR3 obj2_RDF = D3DXVECTOR3(obj2_pos.x + (obj2_colsize.x / 2), obj2_pos.y - (obj2_colsize.y / 2), obj2_pos.z - (obj2_colsize.z / 2));
+
+//D3DXVECTOR3 obj2_LUB = D3DXVECTOR3(obj2_pos.x - (obj2_colsize.x / 2), obj2_pos.y + (obj2_colsize.y / 2), obj2_pos.z + (obj2_colsize.z / 2));
+//D3DXVECTOR3 obj2_RUB = D3DXVECTOR3(obj2_pos.x + (obj2_colsize.x / 2), obj2_pos.y + (obj2_colsize.y / 2), obj2_pos.z + (obj2_colsize.z / 2));
+//D3DXVECTOR3 obj2_LDB = D3DXVECTOR3(obj2_pos.x - (obj2_colsize.x / 2), obj2_pos.y - (obj2_colsize.y / 2), obj2_pos.z + (obj2_colsize.z / 2));
+//D3DXVECTOR3 obj2_RDB = D3DXVECTOR3(obj2_pos.x + (obj2_colsize.x / 2), obj2_pos.y - (obj2_colsize.y / 2), obj2_pos.z + (obj2_colsize.z / 2));
