@@ -263,13 +263,13 @@ void UpdatePlayer(void)
 	if (g_Player.move.x < 0.0f)		// プレイヤーは左に進んでいる
 		ColX = 1;
 	if (g_Player.move.y > 0.0f)		// プレイヤーは上に進んでいる
-		ColX = 0;
+		ColY = 0;
 	if (g_Player.move.y < 0.0f)		// プレイヤーは下に進んでいる
-		ColX = 1;
+		ColY = 1;
 	if (g_Player.move.z > 0.0f)		// プレイヤーは奥に進んでいる
-		ColX = 0;
+		ColZ = 0;
 	if (g_Player.move.z < 0.0f)		// プレイヤーは手前に進んでいる
-		ColX = 1;
+		ColZ = 1;
 
 	// 当たっている範囲のブロックから当たり判定のあるブロックかどうかをマップチップから調べる
 	// 当たっているブロックを保存して後から計算用
@@ -424,41 +424,41 @@ void UpdatePlayer(void)
 	//D3DXVECTOR3 block_max = D3DXVECTOR3(-1, -1, -1);
 	//D3DXVECTOR3 block_last = D3DXVECTOR3(-1, -1, -1);
 
-	//// 保存したblock_min等を使った座標計算
-	//if (ColX == 0)		//プレイヤーは右に進もうとしている
-	//{
-	//	if (block_max.x > -1)
-	//		g_Player.nextpos.x = (block_max.x * MAPCHIP_SIZE_X) - (MAPCHIP_SIZE_X / 2) - (g_Player.colsize.x / 2);
-	//}
-	//if (ColX == 1)		//プレイヤーは左に進もうとしている
-	//{
-	//	if (block_min.x < 999)
-	//		g_Player.nextpos.x = (block_min.x * MAPCHIP_SIZE_X) + (MAPCHIP_SIZE_X / 2) + (g_Player.colsize.x / 2);
-	//}
-	//if (ColY == 0)		//プレイヤーは上に進もうとしている
-	//{
-	//	if (block_max.y > -1)
-	//		g_Player.nextpos.y = (block_max.y * MAPCHIP_SIZE_Y) - (MAPCHIP_SIZE_Y / 2) - (g_Player.colsize.y / 2);
-	//}
-	//if (ColY == 1)		//プレイヤーは下に進もうとしている
-	//{
-	//	if (block_min.y < 999)
-	//	{
-	//		g_Player.nextpos.y = (block_min.y * MAPCHIP_SIZE_Y) + (MAPCHIP_SIZE_Y / 2) + (g_Player.colsize.y / 2);
-	//	}
-	//}
-	//if (ColZ == 0)		//プレイヤーは奥に進もうとしている
-	//{
-	//	if (block_max.z > -1)
-	//		g_Player.nextpos.y = (block_max.z * MAPCHIP_SIZE_Z) - (MAPCHIP_SIZE_Z / 2) - (g_Player.colsize.z / 2);
-	//}
-	//if (ColZ == 1)		//プレイヤーは手前に進もうとしている
-	//{
-	//	if (block_min.y < 999)
-	//	{
-	//		g_Player.nextpos.y = (block_min.z * MAPCHIP_SIZE_Z) + (MAPCHIP_SIZE_Z / 2) + (g_Player.colsize.z / 2);
-	//	}
-	//}
+	// 保存したblock_min等を使った座標計算
+	if (ColX == 0)		//プレイヤーは右に進もうとしている
+	{
+		if (block_max.x > -1)
+			g_Player.nextpos.x = (block_max.x * MAPCHIP_SIZE_X) - (MAPCHIP_SIZE_X / 2) - (g_Player.colsize.x / 2);
+	}
+	if (ColX == 1)		//プレイヤーは左に進もうとしている
+	{
+		if (block_min.x < 999)
+			g_Player.nextpos.x = (block_min.x * MAPCHIP_SIZE_X) + (MAPCHIP_SIZE_X / 2) + (g_Player.colsize.x / 2);
+	}
+	if (ColY == 0)		//プレイヤーは上に進もうとしている
+	{
+		if (block_max.y > -1)
+			g_Player.nextpos.y = (block_max.y * MAPCHIP_SIZE_Y) - (MAPCHIP_SIZE_Y / 2) - (g_Player.colsize.y / 2);
+	}
+	if (ColY == 1)		//プレイヤーは下に進もうとしている
+	{
+		if (block_min.y < 999)
+		{
+			g_Player.nextpos.y = (block_min.y * MAPCHIP_SIZE_Y) + (MAPCHIP_SIZE_Y / 2) + (g_Player.colsize.y / 2);
+		}
+	}
+	if (ColZ == 0)		//プレイヤーは奥に進もうとしている
+	{
+		if (block_max.z > -1)
+			g_Player.nextpos.z = (block_max.z * MAPCHIP_SIZE_Z) - (MAPCHIP_SIZE_Z / 2) - (g_Player.colsize.z / 2);
+	}
+	if (ColZ == 1)		//プレイヤーは手前に進もうとしている
+	{
+		if (block_min.z < 999)
+		{
+			g_Player.nextpos.z = (block_min.z * MAPCHIP_SIZE_Z) + (MAPCHIP_SIZE_Z / 2) + (g_Player.colsize.z / 2);
+		}
+	}
 	SetScore(hitcount);
 	SetScore1(block_max.x + 1000);
 	SetScore2(block_min.x + 1000);
@@ -466,6 +466,9 @@ void UpdatePlayer(void)
 	SetScore4(block_min.y + 1000);
 	SetScore5(block_max.z + 1000);
 	SetScore6(block_min.z + 1000);
+	//SetScore1(ColX + 1000);
+	//SetScore2(ColY + 1000);
+	//SetScore3(ColZ + 1000);
 
 
 	// 当たり判定等の計算をnextposで行ったあと最後にposに反映させる
