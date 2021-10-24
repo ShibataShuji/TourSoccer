@@ -26,9 +26,9 @@
 #define SIZE_Y          (100.0f)					// 地面のサイズ(Y方向)
 #define	SIZE_Z			(100.0f)					// 地面のサイズ(Z方向)
 
-#define VERTEX_NUM       (600)
+#define VERTEX_NUM       (1200)
 
-#define OBJECT_NUM       (99)
+#define OBJECT_NUM       (199)
 
 //*****************************************************************************
 // プロトタイプ宣言

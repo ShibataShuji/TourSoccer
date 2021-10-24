@@ -272,6 +272,11 @@ void UpdatePlayer(void)
 		ColX = 1;
 
 	// 当たっている範囲のブロックから当たり判定のあるブロックかどうかをマップチップから調べる
+	// 当たっているブロックを保存して後から計算用
+	int hitcount = 0;		// 当たっているブロックの数
+	D3DXVECTOR3 block_min  = D3DXVECTOR3(999, 999, 999);
+	D3DXVECTOR3 block_max  = D3DXVECTOR3(-1, -1, -1);
+	D3DXVECTOR3 block_last = D3DXVECTOR3(-1, -1, -1);
 	for (int z = Block_Front; z <= Block_Back; z++)
 	{
 		for (int y = Block_Down; y <= Block_Up; y++)
@@ -283,12 +288,27 @@ void UpdatePlayer(void)
 				// そのブロックデータが 1 だったら当たり判定があるので中で当たり判定の計算し、当たっている面を1面に決める
 				if (BlockData == 1)
 				{
+
 					//ChangeBlockdata(2, x, y, z);
-					// D3DXVECTOR3
+					//D3DXVECTOR3
 					// 隣接しているブロックが 1, 当たり判定のあるブロックだと分かったので、更に細かく当たり判定を見る
 					if (CheckHit(g_Player.nextpos, g_Player.colsize,
 						D3DXVECTOR3(x * MAPCHIP_SIZE_X, y * MAPCHIP_SIZE_Y, z * MAPCHIP_SIZE_Z), D3DXVECTOR3(MAPCHIP_SIZE_X, MAPCHIP_SIZE_Y, MAPCHIP_SIZE_Z)))
 					{
+						// 当たっているブロックの保存
+						hitcount++;
+						block_last.x = x;
+						block_last.y = y;
+						block_last.z = z;
+
+						if (x > block_max.x) block_max.x = x;
+						if (x < block_min.x) block_min.x = x;
+						if (y > block_max.y) block_max.y = y;
+						if (y < block_min.y) block_min.y = y;
+						if (z > block_max.z) block_max.z = z;
+						if (z < block_min.z) block_min.z = z;
+
+
 						// プレイヤーとブロックの接している長さをx,y,z座標のそれぞれで調べて最も長いところが当たり判定があることにする
 						float ContactLengthX = -1.0f;		// 長さは必ず正の数になるので負の数だと接していないことになる
 						float ContactLengthY = -1.0f;
@@ -399,7 +419,53 @@ void UpdatePlayer(void)
 		}
 
 	}
+	//int hitcount = 0;		// 当たっているブロックの数
+	//D3DXVECTOR3 block_min = D3DXVECTOR3(999, 999, 999);
+	//D3DXVECTOR3 block_max = D3DXVECTOR3(-1, -1, -1);
+	//D3DXVECTOR3 block_last = D3DXVECTOR3(-1, -1, -1);
 
+	//// 保存したblock_min等を使った座標計算
+	//if (ColX == 0)		//プレイヤーは右に進もうとしている
+	//{
+	//	if (block_max.x > -1)
+	//		g_Player.nextpos.x = (block_max.x * MAPCHIP_SIZE_X) - (MAPCHIP_SIZE_X / 2) - (g_Player.colsize.x / 2);
+	//}
+	//if (ColX == 1)		//プレイヤーは左に進もうとしている
+	//{
+	//	if (block_min.x < 999)
+	//		g_Player.nextpos.x = (block_min.x * MAPCHIP_SIZE_X) + (MAPCHIP_SIZE_X / 2) + (g_Player.colsize.x / 2);
+	//}
+	//if (ColY == 0)		//プレイヤーは上に進もうとしている
+	//{
+	//	if (block_max.y > -1)
+	//		g_Player.nextpos.y = (block_max.y * MAPCHIP_SIZE_Y) - (MAPCHIP_SIZE_Y / 2) - (g_Player.colsize.y / 2);
+	//}
+	//if (ColY == 1)		//プレイヤーは下に進もうとしている
+	//{
+	//	if (block_min.y < 999)
+	//	{
+	//		g_Player.nextpos.y = (block_min.y * MAPCHIP_SIZE_Y) + (MAPCHIP_SIZE_Y / 2) + (g_Player.colsize.y / 2);
+	//	}
+	//}
+	//if (ColZ == 0)		//プレイヤーは奥に進もうとしている
+	//{
+	//	if (block_max.z > -1)
+	//		g_Player.nextpos.y = (block_max.z * MAPCHIP_SIZE_Z) - (MAPCHIP_SIZE_Z / 2) - (g_Player.colsize.z / 2);
+	//}
+	//if (ColZ == 1)		//プレイヤーは手前に進もうとしている
+	//{
+	//	if (block_min.y < 999)
+	//	{
+	//		g_Player.nextpos.y = (block_min.z * MAPCHIP_SIZE_Z) + (MAPCHIP_SIZE_Z / 2) + (g_Player.colsize.z / 2);
+	//	}
+	//}
+	SetScore(hitcount);
+	SetScore1(block_max.x + 1000);
+	SetScore2(block_min.x + 1000);
+	SetScore3(block_max.y + 1000);
+	SetScore4(block_min.y + 1000);
+	SetScore5(block_max.z + 1000);
+	SetScore6(block_min.z + 1000);
 
 
 	// 当たり判定等の計算をnextposで行ったあと最後にposに反映させる

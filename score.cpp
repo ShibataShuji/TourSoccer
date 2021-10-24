@@ -33,6 +33,13 @@ static int						g_TexNo;					// テクスチャ番号
 
 static int						g_Score;					// スコア
 
+int				g_Score1;
+int				g_Score2;
+int				g_Score3;
+int				g_Score4;
+int				g_Score5;
+int				g_Score6;
+
 //=============================================================================
 // 初期化処理
 //=============================================================================
@@ -48,6 +55,12 @@ HRESULT InitScore(void)
 	g_Pos   = D3DXVECTOR3(100.0f, 20.0f, 0.0f);
 
 	g_Score = 0;	// スコアの初期化
+	g_Score1 = 0;
+	g_Score2 = 0;
+	g_Score3 = 0;
+	g_Score4 = 0;
+	g_Score5 = 0;
+	g_Score6 = 0;
 
 	return S_OK;
 }
@@ -105,13 +118,205 @@ void DrawScore(void)
 			D3DXVECTOR3 scl = D3DXVECTOR3(1.0f, 1.0f, 1.0f);
 
 			// １枚のポリゴンの頂点とテクスチャ座標を設定
-			//DrawSprite(g_TexNo, px, py, pw, ph, tx, ty, tw, th);
 			SetObject(0, g_TexNo, pos, rot, size, scl,
 				tx, ty, tw, th,
 				D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f), false, D3DXVECTOR3(0.0f, 0.0f, 0.0f), 1);
 
 			// 次の桁へ
 			number /= 10;
+		}
+
+
+		// スコア１
+		int number1 = g_Score1;
+		for (int i = 0; i < SCORE_DIGIT; i++)
+		{
+			// 今回表示する桁の数字
+			float x = (float)(number1 % 10);
+
+			// スコアの位置やテクスチャー座標を反映
+			float px = g_Pos.x - g_w * i;	// プレイヤーの表示位置X
+			float py = g_Pos.y - 40.0f * 1;			// プレイヤーの表示位置Y
+			float pw = g_w;				// プレイヤーの表示幅
+			float ph = g_h;				// プレイヤーの表示高さ
+
+			float tw = 1.0f / 10;		// テクスチャの幅
+			float th = 1.0f / 1;		// テクスチャの高さ
+			float tx = x * tw;			// テクスチャの左上X座標
+			float ty = 0.0f;			// テクスチャの左上Y座標
+
+			D3DXVECTOR3 pos = D3DXVECTOR3(px, py, -20.0f);
+			D3DXVECTOR3 rot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+			D3DXVECTOR3 size = D3DXVECTOR3(pw, ph, 0.0f);
+			D3DXVECTOR3 scl = D3DXVECTOR3(1.0f, 1.0f, 1.0f);
+
+			// １枚のポリゴンの頂点とテクスチャ座標を設定
+			SetObject(0, g_TexNo, pos, rot, size, scl,
+				tx, ty, tw, th,
+				D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f), false, D3DXVECTOR3(0.0f, 0.0f, 0.0f), 1);
+
+			// 次の桁へ
+			number1 /= 10;
+		}
+
+		// スコア２
+		int number2 = g_Score2;
+		for (int i = 0; i < SCORE_DIGIT; i++)
+		{
+			// 今回表示する桁の数字
+			float x = (float)(number2 % 10);
+
+			// スコアの位置やテクスチャー座標を反映
+			float px = g_Pos.x - g_w * i;	// プレイヤーの表示位置X
+			float py = g_Pos.y - 40.0f * 2;			// プレイヤーの表示位置Y
+			float pw = g_w;				// プレイヤーの表示幅
+			float ph = g_h;				// プレイヤーの表示高さ
+
+			float tw = 1.0f / 10;		// テクスチャの幅
+			float th = 1.0f / 1;		// テクスチャの高さ
+			float tx = x * tw;			// テクスチャの左上X座標
+			float ty = 0.0f;			// テクスチャの左上Y座標
+
+			D3DXVECTOR3 pos = D3DXVECTOR3(px, py, -20.0f);
+			D3DXVECTOR3 rot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+			D3DXVECTOR3 size = D3DXVECTOR3(pw, ph, 0.0f);
+			D3DXVECTOR3 scl = D3DXVECTOR3(1.0f, 1.0f, 1.0f);
+
+			// １枚のポリゴンの頂点とテクスチャ座標を設定
+			SetObject(0, g_TexNo, pos, rot, size, scl,
+				tx, ty, tw, th,
+				D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f), false, D3DXVECTOR3(0.0f, 0.0f, 0.0f), 1);
+
+			// 次の桁へ
+			number2 /= 10;
+		}
+
+		// スコア３
+		int number3 = g_Score3;
+		for (int i = 0; i < SCORE_DIGIT; i++)
+		{
+			// 今回表示する桁の数字
+			float x = (float)(number3 % 10);
+
+			// スコアの位置やテクスチャー座標を反映
+			float px = g_Pos.x - g_w * i;	// プレイヤーの表示位置X
+			float py = g_Pos.y - 40.0f * 3;			// プレイヤーの表示位置Y
+			float pw = g_w;				// プレイヤーの表示幅
+			float ph = g_h;				// プレイヤーの表示高さ
+
+			float tw = 1.0f / 10;		// テクスチャの幅
+			float th = 1.0f / 1;		// テクスチャの高さ
+			float tx = x * tw;			// テクスチャの左上X座標
+			float ty = 0.0f;			// テクスチャの左上Y座標
+
+			D3DXVECTOR3 pos = D3DXVECTOR3(px, py, -20.0f);
+			D3DXVECTOR3 rot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+			D3DXVECTOR3 size = D3DXVECTOR3(pw, ph, 0.0f);
+			D3DXVECTOR3 scl = D3DXVECTOR3(1.0f, 1.0f, 1.0f);
+
+			// １枚のポリゴンの頂点とテクスチャ座標を設定
+			SetObject(0, g_TexNo, pos, rot, size, scl,
+				tx, ty, tw, th,
+				D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f), false, D3DXVECTOR3(0.0f, 0.0f, 0.0f), 1);
+
+			// 次の桁へ
+			number3 /= 10;
+		}
+
+		// スコア４
+		int number4 = g_Score4;
+		for (int i = 0; i < SCORE_DIGIT; i++)
+		{
+			// 今回表示する桁の数字
+			float x = (float)(number4 % 10);
+
+			// スコアの位置やテクスチャー座標を反映
+			float px = g_Pos.x - g_w * i;	// プレイヤーの表示位置X
+			float py = g_Pos.y - 40.0f * 4;			// プレイヤーの表示位置Y
+			float pw = g_w;				// プレイヤーの表示幅
+			float ph = g_h;				// プレイヤーの表示高さ
+
+			float tw = 1.0f / 10;		// テクスチャの幅
+			float th = 1.0f / 1;		// テクスチャの高さ
+			float tx = x * tw;			// テクスチャの左上X座標
+			float ty = 0.0f;			// テクスチャの左上Y座標
+
+			D3DXVECTOR3 pos = D3DXVECTOR3(px, py, -20.0f);
+			D3DXVECTOR3 rot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+			D3DXVECTOR3 size = D3DXVECTOR3(pw, ph, 0.0f);
+			D3DXVECTOR3 scl = D3DXVECTOR3(1.0f, 1.0f, 1.0f);
+
+			// １枚のポリゴンの頂点とテクスチャ座標を設定
+			SetObject(0, g_TexNo, pos, rot, size, scl,
+				tx, ty, tw, th,
+				D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f), false, D3DXVECTOR3(0.0f, 0.0f, 0.0f), 1);
+
+			// 次の桁へ
+			number4 /= 10;
+		}
+
+		// スコア５
+		int number5 = g_Score5;
+		for (int i = 0; i < SCORE_DIGIT; i++)
+		{
+			// 今回表示する桁の数字
+			float x = (float)(number5 % 10);
+
+			// スコアの位置やテクスチャー座標を反映
+			float px = g_Pos.x - g_w * i;	// プレイヤーの表示位置X
+			float py = g_Pos.y - 40.0f * 5;			// プレイヤーの表示位置Y
+			float pw = g_w;				// プレイヤーの表示幅
+			float ph = g_h;				// プレイヤーの表示高さ
+
+			float tw = 1.0f / 10;		// テクスチャの幅
+			float th = 1.0f / 1;		// テクスチャの高さ
+			float tx = x * tw;			// テクスチャの左上X座標
+			float ty = 0.0f;			// テクスチャの左上Y座標
+
+			D3DXVECTOR3 pos = D3DXVECTOR3(px, py, -20.0f);
+			D3DXVECTOR3 rot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+			D3DXVECTOR3 size = D3DXVECTOR3(pw, ph, 0.0f);
+			D3DXVECTOR3 scl = D3DXVECTOR3(1.0f, 1.0f, 1.0f);
+
+			// １枚のポリゴンの頂点とテクスチャ座標を設定
+			SetObject(0, g_TexNo, pos, rot, size, scl,
+				tx, ty, tw, th,
+				D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f), false, D3DXVECTOR3(0.0f, 0.0f, 0.0f), 1);
+
+			// 次の桁へ
+			number5 /= 10;
+		}
+
+		// スコア６
+		int number6 = g_Score6;
+		for (int i = 0; i < SCORE_DIGIT; i++)
+		{
+			// 今回表示する桁の数字
+			float x = (float)(number6 % 10);
+
+			// スコアの位置やテクスチャー座標を反映
+			float px = g_Pos.x - g_w * i;	// プレイヤーの表示位置X
+			float py = g_Pos.y - 40.0f * 6;			// プレイヤーの表示位置Y
+			float pw = g_w;				// プレイヤーの表示幅
+			float ph = g_h;				// プレイヤーの表示高さ
+
+			float tw = 1.0f / 10;		// テクスチャの幅
+			float th = 1.0f / 1;		// テクスチャの高さ
+			float tx = x * tw;			// テクスチャの左上X座標
+			float ty = 0.0f;			// テクスチャの左上Y座標
+
+			D3DXVECTOR3 pos = D3DXVECTOR3(px, py, -20.0f);
+			D3DXVECTOR3 rot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+			D3DXVECTOR3 size = D3DXVECTOR3(pw, ph, 0.0f);
+			D3DXVECTOR3 scl = D3DXVECTOR3(1.0f, 1.0f, 1.0f);
+
+			// １枚のポリゴンの頂点とテクスチャ座標を設定
+			SetObject(0, g_TexNo, pos, rot, size, scl,
+				tx, ty, tw, th,
+				D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f), false, D3DXVECTOR3(0.0f, 0.0f, 0.0f), 1);
+
+			// 次の桁へ
+			number6 /= 10;
 		}
 	}
 }
@@ -137,5 +342,65 @@ void SetScore(int score)
 	if (g_Score > SCORE_MAX)
 	{
 		g_Score = SCORE_MAX;
+	}
+}
+
+void SetScore1(int score)
+{
+	g_Score1 = score;
+
+	if (g_Score1 > SCORE_MAX)
+	{
+		g_Score1 = SCORE_MAX;
+	}
+}
+
+void SetScore2(int score)
+{
+	g_Score2 = score;
+
+	if (g_Score2 > SCORE_MAX)
+	{
+		g_Score2 = SCORE_MAX;
+	}
+}
+
+void SetScore3(int score)
+{
+	g_Score3 = score;
+
+	if (g_Score3 > SCORE_MAX)
+	{
+		g_Score3 = SCORE_MAX;
+	}
+}
+
+void SetScore4(int score)
+{
+	g_Score4 = score;
+
+	if (g_Score4 > SCORE_MAX)
+	{
+		g_Score4 = SCORE_MAX;
+	}
+}
+
+void SetScore5(int score)
+{
+	g_Score5 = score;
+
+	if (g_Score5 > SCORE_MAX)
+	{
+		g_Score5 = SCORE_MAX;
+	}
+}
+
+void SetScore6(int score)
+{
+	g_Score6 = score;
+
+	if (g_Score6 > SCORE_MAX)
+	{
+		g_Score6 = SCORE_MAX;
 	}
 }

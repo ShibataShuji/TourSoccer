@@ -29,3 +29,10 @@ void DrawScore(void);
 void AddScore(int add);
 
 void SetScore(int score);
+
+void SetScore1(int score);
+void SetScore2(int score);
+void SetScore3(int score);
+void SetScore4(int score);
+void SetScore5(int score);
+void SetScore6(int score);
