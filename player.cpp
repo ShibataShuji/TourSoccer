@@ -92,6 +92,25 @@ void UpdatePlayer(void)
 	int oldblock_y = (g_Player.oldpos.y + (MAPCHIP_SIZE_Y / 2)) / MAPCHIP_SIZE_Y;
 	int oldblock_z = (g_Player.oldpos.z + (MAPCHIP_SIZE_Z / 2)) / MAPCHIP_SIZE_Z;
 
+	// oldposの時の座標を8隅を計算で求める,当たり判定なのでsizeではなくcolsizeを使う
+	D3DXVECTOR3 LUFold = D3DXVECTOR3(g_Player.oldpos.x - (g_Player.colsize.x / 2), g_Player.oldpos.y + (g_Player.colsize.y / 2), g_Player.oldpos.z - (g_Player.colsize.z / 2));
+	D3DXVECTOR3 RUFold = D3DXVECTOR3(g_Player.oldpos.x + (g_Player.colsize.x / 2), g_Player.oldpos.y + (g_Player.colsize.y / 2), g_Player.oldpos.z - (g_Player.colsize.z / 2));
+	D3DXVECTOR3 LDFold = D3DXVECTOR3(g_Player.oldpos.x - (g_Player.colsize.x / 2), g_Player.oldpos.y - (g_Player.colsize.y / 2), g_Player.oldpos.z - (g_Player.colsize.z / 2));
+	D3DXVECTOR3 RDFold = D3DXVECTOR3(g_Player.oldpos.x + (g_Player.colsize.x / 2), g_Player.oldpos.y - (g_Player.colsize.y / 2), g_Player.oldpos.z - (g_Player.colsize.z / 2));
+
+	D3DXVECTOR3 LUBold = D3DXVECTOR3(g_Player.oldpos.x - (g_Player.colsize.x / 2), g_Player.oldpos.y + (g_Player.colsize.y / 2), g_Player.oldpos.z + (g_Player.colsize.z / 2));
+	D3DXVECTOR3 RUBold = D3DXVECTOR3(g_Player.oldpos.x + (g_Player.colsize.x / 2), g_Player.oldpos.y + (g_Player.colsize.y / 2), g_Player.oldpos.z + (g_Player.colsize.z / 2));
+	D3DXVECTOR3 LDBold = D3DXVECTOR3(g_Player.oldpos.x - (g_Player.colsize.x / 2), g_Player.oldpos.y - (g_Player.colsize.y / 2), g_Player.oldpos.z + (g_Player.colsize.z / 2));
+	D3DXVECTOR3 RDBold = D3DXVECTOR3(g_Player.oldpos.x + (g_Player.colsize.x / 2), g_Player.oldpos.y - (g_Player.colsize.y / 2), g_Player.oldpos.z + (g_Player.colsize.z / 2));
+
+	//頂点からold上下左右前奥のブロックを求める
+	int LeftBlockOld   = (LUFold.x + (MAPCHIP_SIZE_X / 2)) / MAPCHIP_SIZE_X;
+	int RightBlockOld  = (RUFold.x + (MAPCHIP_SIZE_X / 2)) / MAPCHIP_SIZE_X;
+	int UpBlockOld	   = (LUFold.y + (MAPCHIP_SIZE_Y / 2)) / MAPCHIP_SIZE_Y;
+	int DownBlockOld   = (LDFold.y + (MAPCHIP_SIZE_Y / 2)) / MAPCHIP_SIZE_Y;
+	int FrontBlockOld  = (LUFold.z + (MAPCHIP_SIZE_Z / 2)) / MAPCHIP_SIZE_Z;
+	int BehindBlockOld = (LUBold.z + (MAPCHIP_SIZE_Z / 2)) / MAPCHIP_SIZE_Z;
+
 
 	// move移動の力の設定(アップデートの最初に書くといいかも)(0.0fに近づけていく)
 	float friction;					// 摩擦力,抵抗力(床とか空中とかそういうのによって変更する)
@@ -476,10 +495,26 @@ void UpdatePlayer(void)
 	if (block_max.z == block_min.z && oldblock_z == block_max.z)
 		g_Player.nextpos.z = InitNextpos.z;
 
+	// oldblock_xとblock_max.xが同じブロックならnextpos.xはそのままでよい
+	if (block_max.x == block_min.x)
+	{
+		if(oldblock_x == block_max.x || LeftBlockOld == block_max.x || RightBlockOld == block_max.x)
+			g_Player.nextpos.x = InitNextpos.x;
+	}
+	if (block_max.y == block_min.y && oldblock_y == block_max.y)
+		g_Player.nextpos.y = InitNextpos.y;
+	if (block_max.z == block_min.z && oldblock_z == block_max.z)
+		g_Player.nextpos.z = InitNextpos.z;
 
 
 
 
+	//int LeftBlockOld = (LUFold.x + (MAPCHIP_SIZE_X / 2)) / MAPCHIP_SIZE_X;
+	//int RightBlockOld = (RUFold.x + (MAPCHIP_SIZE_X / 2)) / MAPCHIP_SIZE_X;
+	//int UpBlockOld = (LUFold.y + (MAPCHIP_SIZE_Y / 2)) / MAPCHIP_SIZE_Y;
+	//int DownBlockOld = (LDFold.y + (MAPCHIP_SIZE_Y / 2)) / MAPCHIP_SIZE_Y;
+	//int FrontBlockOld = (LUFold.z + (MAPCHIP_SIZE_Z / 2)) / MAPCHIP_SIZE_Z;
+	//int BehindBlockOld = (LUBold.z + (MAPCHIP_SIZE_Z / 2)) / MAPCHIP_SIZE_Z;
 
 	//SetScore(hitcount);
 	SetScore(oldblock_x + 1000);
@@ -493,6 +528,12 @@ void UpdatePlayer(void)
 	//SetScore1(ColX + 1000);
 	//SetScore2(ColY + 1000);
 	//SetScore3(ColZ + 1000);
+	SetScore1(LeftBlockOld + 1000);
+	SetScore2(RightBlockOld + 1000);
+	SetScore3(UpBlockOld + 1000);
+	SetScore4(DownBlockOld + 1000);
+	SetScore5(FrontBlockOld + 1000);
+	SetScore6(BehindBlockOld + 1000);
 
 
 	// 当たり判定等の計算をnextposで行ったあと最後にposに反映させる
