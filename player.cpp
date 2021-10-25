@@ -334,12 +334,10 @@ void UpdatePlayer(void)
 				if (BlockData == 1)
 				{
 
-					//ChangeBlockdata(2, x, y, z);
-					//D3DXVECTOR3
-					// 隣接しているブロックが 1, 当たり判定のあるブロックだと分かったので、更に細かく当たり判定を見る
-					if (CheckHit(g_Player.nextpos, g_Player.colsize,
-						D3DXVECTOR3(x * MAPCHIP_SIZE_X, y * MAPCHIP_SIZE_Y, z * MAPCHIP_SIZE_Z), D3DXVECTOR3(MAPCHIP_COLSIZE_X, MAPCHIP_COLSIZE_Y, MAPCHIP_COLSIZE_Z)))
+					if (CheckHitCircleBox(g_Player.nextpos, g_Player.colsize.x,
+						D3DXVECTOR3(x, y, z), D3DXVECTOR3(MAPCHIP_COLSIZE_X, MAPCHIP_COLSIZE_Y, MAPCHIP_COLSIZE_Z)))
 					{
+						// 円の当たり判定で当たっている場合
 						// 当たっているブロックの保存
 						hitcount++;
 						block_last.x = x;
@@ -353,58 +351,79 @@ void UpdatePlayer(void)
 						if (z > block_max.z) block_max.z = z;
 						if (z < block_min.z) block_min.z = z;
 
-
-						// ブロックの8隅の座標
-						D3DXVECTOR3 LUF_block = D3DXVECTOR3(x * MAPCHIP_SIZE_X - (MAPCHIP_COLSIZE_X / 2), y * MAPCHIP_SIZE_Y + (MAPCHIP_COLSIZE_Y / 2), z * MAPCHIP_SIZE_Z - (MAPCHIP_COLSIZE_Z / 2));
-						D3DXVECTOR3 RUF_block = D3DXVECTOR3(x * MAPCHIP_SIZE_X + (MAPCHIP_COLSIZE_X / 2), y * MAPCHIP_SIZE_Y + (MAPCHIP_COLSIZE_Y / 2), z * MAPCHIP_SIZE_Z - (MAPCHIP_COLSIZE_Z / 2));
-						D3DXVECTOR3 LDF_block = D3DXVECTOR3(x * MAPCHIP_SIZE_X - (MAPCHIP_COLSIZE_X / 2), y * MAPCHIP_SIZE_Y - (MAPCHIP_COLSIZE_Y / 2), z * MAPCHIP_SIZE_Z - (MAPCHIP_COLSIZE_Z / 2));
-						D3DXVECTOR3 RDF_block = D3DXVECTOR3(x * MAPCHIP_SIZE_X + (MAPCHIP_COLSIZE_X / 2), y * MAPCHIP_SIZE_Y - (MAPCHIP_COLSIZE_Y / 2), z * MAPCHIP_SIZE_Z - (MAPCHIP_COLSIZE_Z / 2));
-
-						D3DXVECTOR3 LUB_block = D3DXVECTOR3(x * MAPCHIP_SIZE_X - (MAPCHIP_COLSIZE_X / 2), y * MAPCHIP_SIZE_Y + (MAPCHIP_COLSIZE_Y / 2), z * MAPCHIP_SIZE_Z + (MAPCHIP_COLSIZE_Z / 2));
-						D3DXVECTOR3 RUB_block = D3DXVECTOR3(x * MAPCHIP_SIZE_X + (MAPCHIP_COLSIZE_X / 2), y * MAPCHIP_SIZE_Y + (MAPCHIP_COLSIZE_Y / 2), z * MAPCHIP_SIZE_Z + (MAPCHIP_COLSIZE_Z / 2));
-						D3DXVECTOR3 LDB_block = D3DXVECTOR3(x * MAPCHIP_SIZE_X - (MAPCHIP_COLSIZE_X / 2), y * MAPCHIP_SIZE_Y - (MAPCHIP_COLSIZE_Y / 2), z * MAPCHIP_SIZE_Z + (MAPCHIP_COLSIZE_Z / 2));
-						D3DXVECTOR3 RDB_block = D3DXVECTOR3(x * MAPCHIP_SIZE_X + (MAPCHIP_COLSIZE_X / 2), y * MAPCHIP_SIZE_Y - (MAPCHIP_COLSIZE_Y / 2), z * MAPCHIP_SIZE_Z + (MAPCHIP_COLSIZE_Z / 2));
-						
-						//////////// 円を使った当たり判定
-						//////////// とりあえずxとzでやってみてる 半径はプレイヤーの当たり判定のサイズのとりあえずX(50.0f)を使う
-						//////////float radius = g_Player.colsize.x / 2;
-						//////////// まず円の原点ともう片方の点の距離を求める
-						//////////float distance = CalculationDistance(g_Player.nextpos.x, g_Player.nextpos.z, LUF_block.x, LUF_block.z);
-						//////////// 距離とは別にxとzの両方の差を出しておく この時、obj2 - obj1となるようにする。(obj1の内側で判定を行うため)
-						//////////D3DXVECTOR2 difference = D3DXVECTOR2(g_Player.nextpos.x - LUF_block.x, g_Player.nextpos.z - LUF_block.z);
-						//////////// その距離が円の半径より短いなら円の中にその点(四角形の角)が入っているので当たっている。
-						if (distance <= radius)
-						{
-							// 当たっている処理
-							// 半径(全体)から内側にできる三角形の斜辺(=distance)を割って割合を出す
-							float ratio = distance / radius;	// 円の原点から角までの距離は半径に対してどのくらいの割合か。
-							// 差に対して割合をかけてあげて、円の原点と被っている最奥の座標の差を出す
-							D3DXVECTOR2 finpos = D3DXVECTOR2(difference.x / ratio, difference.y / ratio);
-
-							// 最終的な動かす距離を出す
-							D3DXVECTOR2 movedistance = D3DXVECTOR2(finpos.x - difference.x, finpos.y - difference.y);
-
-							// 最終的に求めた座標から角の座標を引いてあげればどれだけ被っているかがわかる
-							//D3DXVECTOR2 Cover = D3DXVECTOR2(LUF_block.x + finpos.x, LUF_block.z + finpos.y);
-							// そしてnextposに反映させる。または最終的にそうするようにする
-							//g_Player.nextpos.x = g_Player.nextpos.x - movedistance.x;
-							//g_Player.nextpos.z = g_Player.nextpos.z - movedistance.y;
-
-							float assx = g_Player.nextpos.x - movedistance.x;
-							float assy = g_Player.nextpos.z - movedistance.y;
-
-							SetScore(ratio * 100);
-							//SetScore1(radius + 1000);
-							//SetScore2(distance + 1000);
-							SetScore1(movedistance.x + 1000);
-							SetScore2(movedistance.y + 1000);
-							SetScore3(finpos.x + 1000);
-							SetScore4(finpos.y + 1000);
-							SetScore5(assx + 1000);
-							SetScore6(assy + 1000);
-
-						}
 					}
+
+					////ChangeBlockdata(2, x, y, z);
+					////D3DXVECTOR3
+					//// 隣接しているブロックが 1, 当たり判定のあるブロックだと分かったので、更に細かく当たり判定を見る
+					//if (CheckHit(g_Player.nextpos, g_Player.colsize,
+					//	D3DXVECTOR3(x * MAPCHIP_SIZE_X, y * MAPCHIP_SIZE_Y, z * MAPCHIP_SIZE_Z), D3DXVECTOR3(MAPCHIP_COLSIZE_X, MAPCHIP_COLSIZE_Y, MAPCHIP_COLSIZE_Z)))
+					//{
+					//	// 当たっているブロックの保存
+					//	hitcount++;
+					//	block_last.x = x;
+					//	block_last.y = y;
+					//	block_last.z = z;
+
+					//	if (x > block_max.x) block_max.x = x;
+					//	if (x < block_min.x) block_min.x = x;
+					//	if (y > block_max.y) block_max.y = y;
+					//	if (y < block_min.y) block_min.y = y;
+					//	if (z > block_max.z) block_max.z = z;
+					//	if (z < block_min.z) block_min.z = z;
+
+
+					//	// ブロックの8隅の座標
+					//	D3DXVECTOR3 LUF_block = D3DXVECTOR3(x * MAPCHIP_SIZE_X - (MAPCHIP_COLSIZE_X / 2), y * MAPCHIP_SIZE_Y + (MAPCHIP_COLSIZE_Y / 2), z * MAPCHIP_SIZE_Z - (MAPCHIP_COLSIZE_Z / 2));
+					//	D3DXVECTOR3 RUF_block = D3DXVECTOR3(x * MAPCHIP_SIZE_X + (MAPCHIP_COLSIZE_X / 2), y * MAPCHIP_SIZE_Y + (MAPCHIP_COLSIZE_Y / 2), z * MAPCHIP_SIZE_Z - (MAPCHIP_COLSIZE_Z / 2));
+					//	D3DXVECTOR3 LDF_block = D3DXVECTOR3(x * MAPCHIP_SIZE_X - (MAPCHIP_COLSIZE_X / 2), y * MAPCHIP_SIZE_Y - (MAPCHIP_COLSIZE_Y / 2), z * MAPCHIP_SIZE_Z - (MAPCHIP_COLSIZE_Z / 2));
+					//	D3DXVECTOR3 RDF_block = D3DXVECTOR3(x * MAPCHIP_SIZE_X + (MAPCHIP_COLSIZE_X / 2), y * MAPCHIP_SIZE_Y - (MAPCHIP_COLSIZE_Y / 2), z * MAPCHIP_SIZE_Z - (MAPCHIP_COLSIZE_Z / 2));
+
+					//	D3DXVECTOR3 LUB_block = D3DXVECTOR3(x * MAPCHIP_SIZE_X - (MAPCHIP_COLSIZE_X / 2), y * MAPCHIP_SIZE_Y + (MAPCHIP_COLSIZE_Y / 2), z * MAPCHIP_SIZE_Z + (MAPCHIP_COLSIZE_Z / 2));
+					//	D3DXVECTOR3 RUB_block = D3DXVECTOR3(x * MAPCHIP_SIZE_X + (MAPCHIP_COLSIZE_X / 2), y * MAPCHIP_SIZE_Y + (MAPCHIP_COLSIZE_Y / 2), z * MAPCHIP_SIZE_Z + (MAPCHIP_COLSIZE_Z / 2));
+					//	D3DXVECTOR3 LDB_block = D3DXVECTOR3(x * MAPCHIP_SIZE_X - (MAPCHIP_COLSIZE_X / 2), y * MAPCHIP_SIZE_Y - (MAPCHIP_COLSIZE_Y / 2), z * MAPCHIP_SIZE_Z + (MAPCHIP_COLSIZE_Z / 2));
+					//	D3DXVECTOR3 RDB_block = D3DXVECTOR3(x * MAPCHIP_SIZE_X + (MAPCHIP_COLSIZE_X / 2), y * MAPCHIP_SIZE_Y - (MAPCHIP_COLSIZE_Y / 2), z * MAPCHIP_SIZE_Z + (MAPCHIP_COLSIZE_Z / 2));
+					//	
+					//	//////////// 円を使った当たり判定
+					//	//////////// とりあえずxとzでやってみてる 半径はプレイヤーの当たり判定のサイズのとりあえずX(50.0f)を使う
+					//	//////////float radius = g_Player.colsize.x / 2;
+					//	//////////// まず円の原点ともう片方の点の距離を求める
+					//	//////////float distance = CalculationDistance(g_Player.nextpos.x, g_Player.nextpos.z, LUF_block.x, LUF_block.z);
+					//	//////////// 距離とは別にxとzの両方の差を出しておく この時、obj2 - obj1となるようにする。(obj1の内側で判定を行うため)
+					//	//////////D3DXVECTOR2 difference = D3DXVECTOR2(g_Player.nextpos.x - LUF_block.x, g_Player.nextpos.z - LUF_block.z);
+					//	//////////// その距離が円の半径より短いなら円の中にその点(四角形の角)が入っているので当たっている。
+						//if (distance <= radius)
+						//{
+						//	// 当たっている処理
+						//	// 半径(全体)から内側にできる三角形の斜辺(=distance)を割って割合を出す
+						//	float ratio = distance / radius;	// 円の原点から角までの距離は半径に対してどのくらいの割合か。
+						//	// 差に対して割合をかけてあげて、円の原点と被っている最奥の座標の差を出す
+						//	D3DXVECTOR2 finpos = D3DXVECTOR2(difference.x / ratio, difference.y / ratio);
+
+						//	// 最終的な動かす距離を出す
+						//	D3DXVECTOR2 movedistance = D3DXVECTOR2(finpos.x - difference.x, finpos.y - difference.y);
+
+						//	// 最終的に求めた座標から角の座標を引いてあげればどれだけ被っているかがわかる
+						//	//D3DXVECTOR2 Cover = D3DXVECTOR2(LUF_block.x + finpos.x, LUF_block.z + finpos.y);
+						//	// そしてnextposに反映させる。または最終的にそうするようにする
+						//	//g_Player.nextpos.x = g_Player.nextpos.x - movedistance.x;
+						//	//g_Player.nextpos.z = g_Player.nextpos.z - movedistance.y;
+
+						//	float assx = g_Player.nextpos.x - movedistance.x;
+						//	float assy = g_Player.nextpos.z - movedistance.y;
+
+						//	SetScore(ratio * 100);
+						//	//SetScore1(radius + 1000);
+						//	//SetScore2(distance + 1000);
+						//	SetScore1(movedistance.x + 1000);
+						//	SetScore2(movedistance.y + 1000);
+						//	SetScore3(finpos.x + 1000);
+						//	SetScore4(finpos.y + 1000);
+						//	SetScore5(assx + 1000);
+						//	SetScore6(assy + 1000);
+
+						//}
+					//}
 				}
 
 			}
@@ -412,7 +431,70 @@ void UpdatePlayer(void)
 
 	}
 
+	if (hitcount > 0)
+	{
+		// 当たっている場合
+		for (int z = block_min.z; z <= block_max.z; z++)
+		{
+			for (int y = block_min.y; y <= block_max.y; y++)
+			{
+				for (int x = block_min.x; z <= block_max.x; x++)
+				{
 
+					// ブロックの8隅の座標
+					D3DXVECTOR3 LUF_block = D3DXVECTOR3(x * MAPCHIP_SIZE_X - (MAPCHIP_COLSIZE_X / 2), y * MAPCHIP_SIZE_Y + (MAPCHIP_COLSIZE_Y / 2), z * MAPCHIP_SIZE_Z - (MAPCHIP_COLSIZE_Z / 2));
+					D3DXVECTOR3 RUF_block = D3DXVECTOR3(x * MAPCHIP_SIZE_X + (MAPCHIP_COLSIZE_X / 2), y * MAPCHIP_SIZE_Y + (MAPCHIP_COLSIZE_Y / 2), z * MAPCHIP_SIZE_Z - (MAPCHIP_COLSIZE_Z / 2));
+					D3DXVECTOR3 LDF_block = D3DXVECTOR3(x * MAPCHIP_SIZE_X - (MAPCHIP_COLSIZE_X / 2), y * MAPCHIP_SIZE_Y - (MAPCHIP_COLSIZE_Y / 2), z * MAPCHIP_SIZE_Z - (MAPCHIP_COLSIZE_Z / 2));
+					D3DXVECTOR3 RDF_block = D3DXVECTOR3(x * MAPCHIP_SIZE_X + (MAPCHIP_COLSIZE_X / 2), y * MAPCHIP_SIZE_Y - (MAPCHIP_COLSIZE_Y / 2), z * MAPCHIP_SIZE_Z - (MAPCHIP_COLSIZE_Z / 2));
+
+					D3DXVECTOR3 LUB_block = D3DXVECTOR3(x * MAPCHIP_SIZE_X - (MAPCHIP_COLSIZE_X / 2), y * MAPCHIP_SIZE_Y + (MAPCHIP_COLSIZE_Y / 2), z * MAPCHIP_SIZE_Z + (MAPCHIP_COLSIZE_Z / 2));
+					D3DXVECTOR3 RUB_block = D3DXVECTOR3(x * MAPCHIP_SIZE_X + (MAPCHIP_COLSIZE_X / 2), y * MAPCHIP_SIZE_Y + (MAPCHIP_COLSIZE_Y / 2), z * MAPCHIP_SIZE_Z + (MAPCHIP_COLSIZE_Z / 2));
+					D3DXVECTOR3 LDB_block = D3DXVECTOR3(x * MAPCHIP_SIZE_X - (MAPCHIP_COLSIZE_X / 2), y * MAPCHIP_SIZE_Y - (MAPCHIP_COLSIZE_Y / 2), z * MAPCHIP_SIZE_Z + (MAPCHIP_COLSIZE_Z / 2));
+					D3DXVECTOR3 RDB_block = D3DXVECTOR3(x * MAPCHIP_SIZE_X + (MAPCHIP_COLSIZE_X / 2), y * MAPCHIP_SIZE_Y - (MAPCHIP_COLSIZE_Y / 2), z * MAPCHIP_SIZE_Z + (MAPCHIP_COLSIZE_Z / 2));
+
+					float radius = g_Player.colsize.x / 2;
+
+					for (int corner = 0; corner < 8; corner++)
+					{
+						D3DXVECTOR3 Block_pos;
+						if (corner == 0)	Block_pos = LUF_block;
+						if (corner == 1)	Block_pos = RUF_block;
+						if (corner == 2)	Block_pos = LDF_block;
+						if (corner == 3)	Block_pos = RDF_block;
+						if (corner == 4)	Block_pos = LUB_block;
+						if (corner == 5)	Block_pos = RUB_block;
+						if (corner == 6)	Block_pos = LDB_block;
+						if (corner == 7)	Block_pos = RDB_block;
+
+						float distance = CalculationDistance(g_Player.nextpos.x, g_Player.nextpos.z, Block_pos.x, Block_pos.z);
+						D3DXVECTOR2 difference = D3DXVECTOR2(g_Player.nextpos.x - Block_pos.x, g_Player.nextpos.z - Block_pos.z);
+
+						float ratio = distance / radius;
+						D3DXVECTOR2 finpos = D3DXVECTOR2(difference.x / ratio, difference.y / ratio);
+
+						// 最終的な動かす距離を出す
+						D3DXVECTOR2 movedistance = D3DXVECTOR2(finpos.x - difference.x, finpos.y - difference.y);
+
+						float assx = g_Player.nextpos.x - movedistance.x;
+						float assy = g_Player.nextpos.z - movedistance.y;
+
+						SetScore(ratio * 100);
+						//SetScore1(radius + 1000);
+						//SetScore2(distance + 1000);
+						SetScore1(movedistance.x + 1000);
+						SetScore2(movedistance.y + 1000);
+						SetScore3(finpos.x + 1000);
+						SetScore4(finpos.y + 1000);
+						SetScore5(assx + 1000);
+						SetScore6(assy + 1000);
+
+					}
+
+
+				}
+			}
+		}
+	}
 
 
 	// 当たり判定等の計算をnextposで行ったあと最後にposに反映させる
