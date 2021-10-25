@@ -7,6 +7,7 @@
 #include "main.h"
 #include "input.h"
 #include "camera.h"
+#include "player.h"
 
 //*****************************************************************************
 // マクロ定義
@@ -148,8 +149,19 @@ void UpdateCamera(void)
 	// カメラを初期に戻す
 	if (GetKeyboardPress(DIK_SPACE))
 	{
-		UninitCamera();
-		InitCamera();
+		PLAYER player = *GetPlayer();
+
+		//g_Camera.pos = D3DXVECTOR3(player.drawpos.x * 2, 600.0f, -800.0f);
+		g_Camera.pos.x = player.drawpos.x * 2;
+		g_Camera.at = D3DXVECTOR3(player.drawpos.x * 2, 0.0f, 0.0f);
+		//g_Camera.up = D3DXVECTOR3(0.0f, 1.0f, 0.0f);
+		//g_Camera.rot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+
+		// 視点と注視点の距離を計算
+		float vx, vz;
+		vx = g_Camera.pos.x - g_Camera.at.x;
+		vz = g_Camera.pos.z - g_Camera.at.z;
+		g_Camera.len = sqrtf(vx * vx + vz * vz);
 	}
 }
 

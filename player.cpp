@@ -229,6 +229,9 @@ void UpdatePlayer(void)
 	g_Player.nextpos.y += g_Player.move.y;
 	g_Player.nextpos.z += g_Player.move.z;
 
+	// 初期化用のnextposも用意する
+	D3DXVECTOR3 InitNextpos = g_Player.nextpos;
+
 	// マップとの当たり判定
 	// nextposの時の座標を8隅を計算で求める,当たり判定なのでsizeではなくcolsizeを使う
 	D3DXVECTOR3 LUF = D3DXVECTOR3(g_Player.nextpos.x - (g_Player.colsize.x / 2), g_Player.nextpos.y + (g_Player.colsize.y / 2), g_Player.nextpos.z - (g_Player.colsize.z / 2));
@@ -389,7 +392,7 @@ void UpdatePlayer(void)
 						}
 
 						// 当たっている面からプレイヤーの座標を修正する
-						switch (ColSurface)
+						/*switch (ColSurface)
 						{
 						case 0:
 							g_Player.nextpos.z = (z * MAPCHIP_SIZE_Z) - (MAPCHIP_SIZE_Z / 2) - (g_Player.colsize.z / 2);
@@ -415,7 +418,7 @@ void UpdatePlayer(void)
 							g_Player.nextpos.x = (x * MAPCHIP_SIZE_X) - (MAPCHIP_SIZE_X / 2) - (g_Player.colsize.x / 2);
 							ChangeBlockdata(2, x, y, z);
 							break;
-						}
+						}*/
 					}
 				}
 
@@ -464,6 +467,14 @@ void UpdatePlayer(void)
 		}
 	}
 
+	// 当たっているブロックが一つの場合はめちゃ良い
+	// oldblock_xとblock_max.xが同じブロックならnextpos.xはそのままでよい
+	if (block_max.x == block_min.x && oldblock_x == block_max.x)
+		g_Player.nextpos.x = InitNextpos.x;
+	if (block_max.y == block_min.y && oldblock_y == block_max.y)
+		g_Player.nextpos.y = InitNextpos.y;
+	if (block_max.z == block_min.z && oldblock_z == block_max.z)
+		g_Player.nextpos.z = InitNextpos.z;
 
 
 
@@ -488,6 +499,11 @@ void UpdatePlayer(void)
 	g_Player.pos.x = g_Player.nextpos.x;
 	g_Player.pos.y = g_Player.nextpos.y;
 	g_Player.pos.z = g_Player.nextpos.z;
+
+
+
+
+
 
 	////マップ1へ切り替える
 	//if (GetKeyboardTrigger(DIK_L))
