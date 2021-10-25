@@ -85,8 +85,12 @@ void UninitPlayer(void)
 void UpdatePlayer(void)
 {
 
-	// oldposの設定
+	// oldpos,oldblockの設定
 	g_Player.oldpos = g_Player.pos;
+	// posから今いるブロックはどこかを求める
+	int oldblock_x = (g_Player.oldpos.x + (MAPCHIP_SIZE_X / 2)) / MAPCHIP_SIZE_X;
+	int oldblock_y = (g_Player.oldpos.y + (MAPCHIP_SIZE_Y / 2)) / MAPCHIP_SIZE_Y;
+	int oldblock_z = (g_Player.oldpos.z + (MAPCHIP_SIZE_Z / 2)) / MAPCHIP_SIZE_Z;
 
 
 	// move移動の力の設定(アップデートの最初に書くといいかも)(0.0fに近づけていく)
@@ -405,11 +409,11 @@ void UpdatePlayer(void)
 							break;
 						case 4:
 							g_Player.nextpos.x = (x * MAPCHIP_SIZE_X) + (MAPCHIP_SIZE_X / 2) + (g_Player.colsize.x / 2);
-							//ChangeBlockdata(2, x, y, z);
+							ChangeBlockdata(2, x, y, z);
 							break;
 						case 5:
 							g_Player.nextpos.x = (x * MAPCHIP_SIZE_X) - (MAPCHIP_SIZE_X / 2) - (g_Player.colsize.x / 2);
-							//ChangeBlockdata(2, x, y, z);
+							ChangeBlockdata(2, x, y, z);
 							break;
 						}
 					}
@@ -459,7 +463,16 @@ void UpdatePlayer(void)
 			g_Player.nextpos.z = (block_min.z * MAPCHIP_SIZE_Z) + (MAPCHIP_SIZE_Z / 2) + (g_Player.colsize.z / 2);
 		}
 	}
-	SetScore(hitcount);
+
+
+
+
+
+
+
+	//SetScore(hitcount);
+	SetScore(oldblock_x + 1000);
+	//SetScore(g_Player.oldpos.y + 1000);
 	SetScore1(block_max.x + 1000);
 	SetScore2(block_min.x + 1000);
 	SetScore3(block_max.y + 1000);
