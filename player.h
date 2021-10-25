@@ -47,6 +47,9 @@ struct PLAYER
 
 	bool			isUse;		// true:使っている  false:未使用
 
+	int				OldBlock_RightEnd;	// 1フレーム前の右端のブロックの値
+	int				OldBlock_UpEnd;		// 1フレーム前の上端のブロックの値
+	int				OldBlock_BehindEnd;	// 1フレーム前の奥端のブロックの値
 };
 
 

@@ -14,6 +14,10 @@
 #define MAPCHIP_SIZE_Y		(128.0f)
 #define MAPCHIP_SIZE_Z		(128.0f)
 
+#define MAPCHIP_COLSIZE_X		(128.0f)		// posからブロックを求めるとき128.0fとかで左右の片方からだけ
+#define MAPCHIP_COLSIZE_Y		(128.0f)		// intで小数点切った時のずれを防ぐため。
+#define MAPCHIP_COLSIZE_Z		(128.0f)
+
 #define TEST01 (50)
 
 

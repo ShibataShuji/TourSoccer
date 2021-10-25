@@ -53,9 +53,9 @@ HRESULT InitPlayer(void)
 	// 位置・回転・スケールの初期設定
 	g_Player.size	 = D3DXVECTOR3(PLAYER_SIZE_X, PLAYER_SIZE_Y, PLAYER_SIZE_Z);							// 配置の大きさ
 	g_Player.colsize = D3DXVECTOR3(PLAYER_COL_SIZE_X, PLAYER_COL_SIZE_Y, PLAYER_COL_SIZE_Z);							// 当たり判定の大きさ
-	g_Player.pos     = D3DXVECTOR3(0.0f, (MAPCHIP_SIZE_Y / 2) + (g_Player.size.y / 2), 0.0f);			// 配置する座標
-	g_Player.oldpos  = D3DXVECTOR3(0.0f, (MAPCHIP_SIZE_Y / 2) + (g_Player.size.y / 2), 0.0f);			// 前のフレームの座標を保存
-	g_Player.nextpos = D3DXVECTOR3(0.0f, (MAPCHIP_SIZE_Y / 2) + (g_Player.size.y / 2), 0.0f);			// 次のフレームの座標の計算で使用
+	g_Player.pos     = D3DXVECTOR3(0.0f, (MAPCHIP_COLSIZE_Y / 2) + (g_Player.size.y / 2), 0.0f);			// 配置する座標
+	g_Player.oldpos  = D3DXVECTOR3(0.0f, (MAPCHIP_COLSIZE_Y / 2) + (g_Player.size.y / 2), 0.0f);			// 前のフレームの座標を保存
+	g_Player.nextpos = D3DXVECTOR3(0.0f, (MAPCHIP_COLSIZE_Y / 2) + (g_Player.size.y / 2), 0.0f);			// 次のフレームの座標の計算で使用
 	g_Player.drawpos = D3DXVECTOR3(0.0f, 0.0f, 0.0f);			// 配置する座標
 	g_Player.rot     = D3DXVECTOR3(0.0f, 0.0f, 0.0f);			// 配置の角度
 	g_Player.scl     = D3DXVECTOR3(1.0f, 1.0f, 1.0f);			// 大きさの倍率
@@ -67,6 +67,12 @@ HRESULT InitPlayer(void)
 	g_Player.ground = true;
 
 	g_Player.isUse = false;
+
+
+
+	g_Player.OldBlock_RightEnd = 0;
+	g_Player.OldBlock_UpEnd = 0;
+	g_Player.OldBlock_BehindEnd = 0;
 
 	return S_OK;
 }
@@ -110,6 +116,18 @@ void UpdatePlayer(void)
 	int DownBlockOld   = (LDFold.y + (MAPCHIP_SIZE_Y / 2)) / MAPCHIP_SIZE_Y;
 	int FrontBlockOld  = (LUFold.z + (MAPCHIP_SIZE_Z / 2)) / MAPCHIP_SIZE_Z;
 	int BehindBlockOld = (LUBold.z + (MAPCHIP_SIZE_Z / 2)) / MAPCHIP_SIZE_Z;
+
+	// 0.5fずらして左右や上下でのずれがでないよう調整
+	RightBlockOld  = (RUFold.x - 0.5f + (MAPCHIP_SIZE_X / 2)) / MAPCHIP_SIZE_X;
+	UpBlockOld     = (LUFold.y - 0.5f + (MAPCHIP_SIZE_Y / 2)) / MAPCHIP_SIZE_Y;
+	BehindBlockOld = (LUBold.z - 0.5f + (MAPCHIP_SIZE_Z / 2)) / MAPCHIP_SIZE_Z;
+
+	//if (RightBlockOld > oldblock_x && oldblock_x == LeftBlockOld)
+	//	RightBlockOld = oldblock_x;
+	//if (UpBlockOld > oldblock_y && oldblock_y == DownBlockOld)
+	//	UpBlockOld = oldblock_y;
+	//if (BehindBlockOld > oldblock_z && oldblock_z == FrontBlockOld)
+	//	BehindBlockOld = oldblock_z;
 
 
 	// move移動の力の設定(アップデートの最初に書くといいかも)(0.0fに近づけていく)
@@ -319,7 +337,7 @@ void UpdatePlayer(void)
 					//D3DXVECTOR3
 					// 隣接しているブロックが 1, 当たり判定のあるブロックだと分かったので、更に細かく当たり判定を見る
 					if (CheckHit(g_Player.nextpos, g_Player.colsize,
-						D3DXVECTOR3(x * MAPCHIP_SIZE_X, y * MAPCHIP_SIZE_Y, z * MAPCHIP_SIZE_Z), D3DXVECTOR3(MAPCHIP_SIZE_X, MAPCHIP_SIZE_Y, MAPCHIP_SIZE_Z)))
+						D3DXVECTOR3(x * MAPCHIP_SIZE_X, y * MAPCHIP_SIZE_Y, z * MAPCHIP_SIZE_Z), D3DXVECTOR3(MAPCHIP_COLSIZE_X, MAPCHIP_COLSIZE_Y, MAPCHIP_COLSIZE_Z)))
 					{
 						// 当たっているブロックの保存
 						hitcount++;
@@ -454,35 +472,35 @@ void UpdatePlayer(void)
 	if (ColX == 0)		//プレイヤーは右に進もうとしている
 	{
 		if (block_max.x > -1)
-			g_Player.nextpos.x = (block_max.x * MAPCHIP_SIZE_X) - (MAPCHIP_SIZE_X / 2) - (g_Player.colsize.x / 2);
+			g_Player.nextpos.x = (block_max.x * MAPCHIP_COLSIZE_X) - (MAPCHIP_COLSIZE_X / 2) - (g_Player.colsize.x / 2);
 	}
 	if (ColX == 1)		//プレイヤーは左に進もうとしている
 	{
 		if (block_min.x < 999)
-			g_Player.nextpos.x = (block_min.x * MAPCHIP_SIZE_X) + (MAPCHIP_SIZE_X / 2) + (g_Player.colsize.x / 2);
+			g_Player.nextpos.x = (block_min.x * MAPCHIP_COLSIZE_X) + (MAPCHIP_COLSIZE_X / 2) + (g_Player.colsize.x / 2);
 	}
 	if (ColY == 0)		//プレイヤーは上に進もうとしている
 	{
 		if (block_max.y > -1)
-			g_Player.nextpos.y = (block_max.y * MAPCHIP_SIZE_Y) - (MAPCHIP_SIZE_Y / 2) - (g_Player.colsize.y / 2);
+			g_Player.nextpos.y = (block_max.y * MAPCHIP_COLSIZE_Y) - (MAPCHIP_COLSIZE_Y / 2) - (g_Player.colsize.y / 2);
 	}
 	if (ColY == 1)		//プレイヤーは下に進もうとしている
 	{
 		if (block_min.y < 999)
 		{
-			g_Player.nextpos.y = (block_min.y * MAPCHIP_SIZE_Y) + (MAPCHIP_SIZE_Y / 2) + (g_Player.colsize.y / 2);
+			g_Player.nextpos.y = (block_min.y * MAPCHIP_COLSIZE_Y) + (MAPCHIP_COLSIZE_Y / 2) + (g_Player.colsize.y / 2);
 		}
 	}
 	if (ColZ == 0)		//プレイヤーは奥に進もうとしている
 	{
 		if (block_max.z > -1)
-			g_Player.nextpos.z = (block_max.z * MAPCHIP_SIZE_Z) - (MAPCHIP_SIZE_Z / 2) - (g_Player.colsize.z / 2);
+			g_Player.nextpos.z = (block_max.z * MAPCHIP_COLSIZE_Z) - (MAPCHIP_COLSIZE_Z / 2) - (g_Player.colsize.z / 2);
 	}
 	if (ColZ == 1)		//プレイヤーは手前に進もうとしている
 	{
 		if (block_min.z < 999)
 		{
-			g_Player.nextpos.z = (block_min.z * MAPCHIP_SIZE_Z) + (MAPCHIP_SIZE_Z / 2) + (g_Player.colsize.z / 2);
+			g_Player.nextpos.z = (block_min.z * MAPCHIP_COLSIZE_Z) + (MAPCHIP_COLSIZE_Z / 2) + (g_Player.colsize.z / 2);
 		}
 	}
 
