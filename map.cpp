@@ -2,6 +2,7 @@
 #include "texture.h"
 #include "sprite.h"
 #include "polygon.h"
+#include "player.h"
 
 
 //****************************************************************************
@@ -66,8 +67,8 @@ int g_map_test_01[4][10][20] = {
 		{0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0},
 		{0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0},
 		{0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0},
-		{0,1,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0},
-		{1,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0},
+		{0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0},
+		{1,1,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0},
 		{1,1,1,1,1, 1,1,1,1,1, 1,1,1,1,1, 1,1,1,1,1}
 	},
 	{
@@ -284,6 +285,60 @@ bool CheckHit(D3DXVECTOR3 obj1_pos, D3DXVECTOR3 obj1_colsize, D3DXVECTOR3 obj2_p
 
 	// それ以外の場合は当たっている
 	return true;
+}
+
+bool CheckHitCircleBox
+(D3DXVECTOR3 obj1_pos, float obj1_r, D3DXVECTOR3 obj2_pos, D3DXVECTOR3 obj2_colsize)
+{
+	PLAYER player = *GetPlayer();
+
+	// ブロックの8隅の座標
+	D3DXVECTOR3 LUF_block = D3DXVECTOR3(obj2_pos.x * MAPCHIP_SIZE_X - (MAPCHIP_COLSIZE_X / 2), obj2_pos.y * MAPCHIP_SIZE_Y + (MAPCHIP_COLSIZE_Y / 2), obj2_pos.z * MAPCHIP_SIZE_Z - (MAPCHIP_COLSIZE_Z / 2));
+	D3DXVECTOR3 RUF_block = D3DXVECTOR3(obj2_pos.x * MAPCHIP_SIZE_X + (MAPCHIP_COLSIZE_X / 2), obj2_pos.y * MAPCHIP_SIZE_Y + (MAPCHIP_COLSIZE_Y / 2), obj2_pos.z * MAPCHIP_SIZE_Z - (MAPCHIP_COLSIZE_Z / 2));
+	D3DXVECTOR3 LDF_block = D3DXVECTOR3(obj2_pos.x * MAPCHIP_SIZE_X - (MAPCHIP_COLSIZE_X / 2), obj2_pos.y * MAPCHIP_SIZE_Y - (MAPCHIP_COLSIZE_Y / 2), obj2_pos.z * MAPCHIP_SIZE_Z - (MAPCHIP_COLSIZE_Z / 2));
+	D3DXVECTOR3 RDF_block = D3DXVECTOR3(obj2_pos.x * MAPCHIP_SIZE_X + (MAPCHIP_COLSIZE_X / 2), obj2_pos.y * MAPCHIP_SIZE_Y - (MAPCHIP_COLSIZE_Y / 2), obj2_pos.z * MAPCHIP_SIZE_Z - (MAPCHIP_COLSIZE_Z / 2));
+
+	D3DXVECTOR3 LUB_block = D3DXVECTOR3(obj2_pos.x * MAPCHIP_SIZE_X - (MAPCHIP_COLSIZE_X / 2), obj2_pos.y * MAPCHIP_SIZE_Y + (MAPCHIP_COLSIZE_Y / 2), obj2_pos.z * MAPCHIP_SIZE_Z + (MAPCHIP_COLSIZE_Z / 2));
+	D3DXVECTOR3 RUB_block = D3DXVECTOR3(obj2_pos.x * MAPCHIP_SIZE_X + (MAPCHIP_COLSIZE_X / 2), obj2_pos.y * MAPCHIP_SIZE_Y + (MAPCHIP_COLSIZE_Y / 2), obj2_pos.z * MAPCHIP_SIZE_Z + (MAPCHIP_COLSIZE_Z / 2));
+	D3DXVECTOR3 LDB_block = D3DXVECTOR3(obj2_pos.x * MAPCHIP_SIZE_X - (MAPCHIP_COLSIZE_X / 2), obj2_pos.y * MAPCHIP_SIZE_Y - (MAPCHIP_COLSIZE_Y / 2), obj2_pos.z * MAPCHIP_SIZE_Z + (MAPCHIP_COLSIZE_Z / 2));
+	D3DXVECTOR3 RDB_block = D3DXVECTOR3(obj2_pos.x * MAPCHIP_SIZE_X + (MAPCHIP_COLSIZE_X / 2), obj2_pos.y * MAPCHIP_SIZE_Y - (MAPCHIP_COLSIZE_Y / 2), obj2_pos.z * MAPCHIP_SIZE_Z + (MAPCHIP_COLSIZE_Z / 2));
+
+	// 円を使った当たり判定
+	// とりあえずxとzでやってみてる 半径はプレイヤーの当たり判定のサイズのとりあえずX(50.0f)を使う
+	// まず円の原点ともう片方の点の距離を求める
+	// 距離とは別にxとzの両方の差を出しておく この時、obj2 - obj1となるようにする。(obj1の内側で判定を行うため)
+	float radius = player.colsize.x / 2;
+
+	for (int corner = 0; corner < 8; corner++)
+	{
+		D3DXVECTOR3 Block_pos;
+		if (corner == 0)	Block_pos = LUF_block;
+		if (corner == 1)	Block_pos = RUF_block;
+		if (corner == 2)	Block_pos = LDF_block;
+		if (corner == 3)	Block_pos = RDF_block;
+		if (corner == 4)	Block_pos = LUB_block;
+		if (corner == 5)	Block_pos = RUB_block;
+		if (corner == 6)	Block_pos = LDB_block;
+		if (corner == 7)	Block_pos = RDB_block;
+
+		float distance = CalculationDistance(player.nextpos.x, player.nextpos.z, Block_pos.x, Block_pos.z);
+		D3DXVECTOR2 difference = D3DXVECTOR2(player.nextpos.x - Block_pos.x, player.nextpos.z - Block_pos.z);
+
+		if (distance <= radius)
+			return true;
+	}
+
+	// それ以外の場合は当たっていない
+	return false;
+}
+
+
+// 2点間の距離を求める
+float CalculationDistance(float obj1pos1, float obj1pos2, float obj2pos1, float obj2pos2)
+{
+		float distance = sqrt(pow(obj1pos1 - obj2pos1, 2) +
+							  pow(obj1pos2 - obj2pos2, 2));
+		return distance;
 }
 
 //// obj1 それぞれの8隅を計算で求める

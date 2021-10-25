@@ -16,6 +16,7 @@
 //#include "bg.h"
 #include "polygon.h"
 #include "map.h"
+#include <math.h>
 
 
 //*****************************************************************************
@@ -353,109 +354,56 @@ void UpdatePlayer(void)
 						if (z < block_min.z) block_min.z = z;
 
 
-						// プレイヤーとブロックの接している長さをx,y,z座標のそれぞれで調べて最も長いところが当たり判定があることにする
-						float ContactLengthX = -1.0f;		// 長さは必ず正の数になるので負の数だと接していないことになる
-						float ContactLengthY = -1.0f;
-						float ContactLengthZ = -1.0f;
-						float ContactLengthStart = 0.0f;	// ブロックと接している座標の左,下,手前の座標
-						float ContactLengthFinish = 0.0f;	// ブロックと接している座標の右,上,奥の座標
-						// xの接している長さ
-						ContactLengthStart = (x * MAPCHIP_SIZE_X) - (MAPCHIP_SIZE_X / 2);	// 左端,初期値はブロックの長さそのまま
-						ContactLengthFinish = (x * MAPCHIP_SIZE_X) + (MAPCHIP_SIZE_X / 2);	// 右端
-						if (ContactLengthStart < g_Player.nextpos.x - (g_Player.colsize.x / 2))		// スタート地点(ブロックの左端)がプレイヤーの左端より小さければプレイヤーの左端をスタート地点とする
-							ContactLengthStart = g_Player.nextpos.x - (g_Player.colsize.x / 2);
-						if (ContactLengthFinish > g_Player.nextpos.x + (g_Player.colsize.x / 2))		// スタート地点(ブロックの左端)がプレイヤーの右端より大きければプレイヤーの右端をフィニッシュ地点とする
-							ContactLengthFinish = g_Player.nextpos.x + (g_Player.colsize.x / 2);
-						// 最期にフィニッシュ(右端)からスタート(左端)をひくと接している長さが求められる
-						ContactLengthX = ContactLengthFinish - ContactLengthStart;
-						// yの接している長さ
-						ContactLengthStart = (y * MAPCHIP_SIZE_Y) - (MAPCHIP_SIZE_Y / 2);	// 下端,初期値はブロックの長さそのまま
-						ContactLengthFinish = (y * MAPCHIP_SIZE_Y) + (MAPCHIP_SIZE_Y / 2);	// 上端
-						if (ContactLengthStart < g_Player.nextpos.y - (g_Player.colsize.y / 2))
-							ContactLengthStart = g_Player.nextpos.y - (g_Player.colsize.y / 2);
-						if (ContactLengthFinish > g_Player.nextpos.y + (g_Player.colsize.y / 2))
-							ContactLengthFinish = g_Player.nextpos.y + (g_Player.colsize.y / 2);
-						// 最期にフィニッシュからスタートをひくと接している長さが求められる
-						ContactLengthY = ContactLengthFinish - ContactLengthStart;
-						// Zの接している長さ
-						ContactLengthStart = (z * MAPCHIP_SIZE_Z) - (MAPCHIP_SIZE_Z / 2);	// 前端,初期値はブロックの長さそのまま
-						ContactLengthFinish = (z * MAPCHIP_SIZE_Z) + (MAPCHIP_SIZE_Z / 2);	// 奥端
-						if (ContactLengthStart < g_Player.nextpos.z - (g_Player.colsize.z / 2))
-							ContactLengthStart = g_Player.nextpos.z - (g_Player.colsize.z / 2);
-						if (ContactLengthFinish > g_Player.nextpos.z + (g_Player.colsize.z / 2))
-							ContactLengthFinish = g_Player.nextpos.z + (g_Player.colsize.z / 2);
-						// 最期にフィニッシュからスタートをひくと接している長さが求められる
-						ContactLengthZ = ContactLengthFinish - ContactLengthStart;
+						// ブロックの8隅の座標
+						D3DXVECTOR3 LUF_block = D3DXVECTOR3(x * MAPCHIP_SIZE_X - (MAPCHIP_COLSIZE_X / 2), y * MAPCHIP_SIZE_Y + (MAPCHIP_COLSIZE_Y / 2), z * MAPCHIP_SIZE_Z - (MAPCHIP_COLSIZE_Z / 2));
+						D3DXVECTOR3 RUF_block = D3DXVECTOR3(x * MAPCHIP_SIZE_X + (MAPCHIP_COLSIZE_X / 2), y * MAPCHIP_SIZE_Y + (MAPCHIP_COLSIZE_Y / 2), z * MAPCHIP_SIZE_Z - (MAPCHIP_COLSIZE_Z / 2));
+						D3DXVECTOR3 LDF_block = D3DXVECTOR3(x * MAPCHIP_SIZE_X - (MAPCHIP_COLSIZE_X / 2), y * MAPCHIP_SIZE_Y - (MAPCHIP_COLSIZE_Y / 2), z * MAPCHIP_SIZE_Z - (MAPCHIP_COLSIZE_Z / 2));
+						D3DXVECTOR3 RDF_block = D3DXVECTOR3(x * MAPCHIP_SIZE_X + (MAPCHIP_COLSIZE_X / 2), y * MAPCHIP_SIZE_Y - (MAPCHIP_COLSIZE_Y / 2), z * MAPCHIP_SIZE_Z - (MAPCHIP_COLSIZE_Z / 2));
 
-						// x,y,z,3つの接している長さから1番長いものを選出する
-						int BestContact = 0;					// 0:x,1:y,2:z
-						if (ContactLengthX < ContactLengthY)
+						D3DXVECTOR3 LUB_block = D3DXVECTOR3(x * MAPCHIP_SIZE_X - (MAPCHIP_COLSIZE_X / 2), y * MAPCHIP_SIZE_Y + (MAPCHIP_COLSIZE_Y / 2), z * MAPCHIP_SIZE_Z + (MAPCHIP_COLSIZE_Z / 2));
+						D3DXVECTOR3 RUB_block = D3DXVECTOR3(x * MAPCHIP_SIZE_X + (MAPCHIP_COLSIZE_X / 2), y * MAPCHIP_SIZE_Y + (MAPCHIP_COLSIZE_Y / 2), z * MAPCHIP_SIZE_Z + (MAPCHIP_COLSIZE_Z / 2));
+						D3DXVECTOR3 LDB_block = D3DXVECTOR3(x * MAPCHIP_SIZE_X - (MAPCHIP_COLSIZE_X / 2), y * MAPCHIP_SIZE_Y - (MAPCHIP_COLSIZE_Y / 2), z * MAPCHIP_SIZE_Z + (MAPCHIP_COLSIZE_Z / 2));
+						D3DXVECTOR3 RDB_block = D3DXVECTOR3(x * MAPCHIP_SIZE_X + (MAPCHIP_COLSIZE_X / 2), y * MAPCHIP_SIZE_Y - (MAPCHIP_COLSIZE_Y / 2), z * MAPCHIP_SIZE_Z + (MAPCHIP_COLSIZE_Z / 2));
+						
+						//////////// 円を使った当たり判定
+						//////////// とりあえずxとzでやってみてる 半径はプレイヤーの当たり判定のサイズのとりあえずX(50.0f)を使う
+						//////////float radius = g_Player.colsize.x / 2;
+						//////////// まず円の原点ともう片方の点の距離を求める
+						//////////float distance = CalculationDistance(g_Player.nextpos.x, g_Player.nextpos.z, LUF_block.x, LUF_block.z);
+						//////////// 距離とは別にxとzの両方の差を出しておく この時、obj2 - obj1となるようにする。(obj1の内側で判定を行うため)
+						//////////D3DXVECTOR2 difference = D3DXVECTOR2(g_Player.nextpos.x - LUF_block.x, g_Player.nextpos.z - LUF_block.z);
+						//////////// その距離が円の半径より短いなら円の中にその点(四角形の角)が入っているので当たっている。
+						if (distance <= radius)
 						{
-							if (ContactLengthY < ContactLengthZ)
-								BestContact = 2;
-							else
-								BestContact = 1;
-						}
-						else
-						{
-							if (ContactLengthX < ContactLengthZ)
-								BestContact = 2;
-							else
-								BestContact = 0;
-						}
+							// 当たっている処理
+							// 半径(全体)から内側にできる三角形の斜辺(=distance)を割って割合を出す
+							float ratio = distance / radius;	// 円の原点から角までの距離は半径に対してどのくらいの割合か。
+							// 差に対して割合をかけてあげて、円の原点と被っている最奥の座標の差を出す
+							D3DXVECTOR2 finpos = D3DXVECTOR2(difference.x / ratio, difference.y / ratio);
 
-						// BestContactとmoveによるColX,ColY,ColZから立方体のどの面と当たっているのかを求める
-						int ColSurface = -1;				// ColSurfaceはサイコロのどの面を描くか。0:正面,1:後ろ側,2:上側,3:下側,4:右側,5:左側
-						switch (BestContact)
-						{
-						case 0:
-							if (ColX == 0)
-								ColSurface = 5;
-							if (ColX == 1)
-								ColSurface = 4;
-							break;
-						case 1:
-							if (ColY == 0)
-								ColSurface = 3;
-							if (ColY == 1)
-								ColSurface = 2;
-							break;
-						case 2:
-							if (ColZ == 0)
-								ColSurface = 0;
-							if (ColZ == 1)
-								ColSurface = 1;
-							break;
-						}
+							// 最終的な動かす距離を出す
+							D3DXVECTOR2 movedistance = D3DXVECTOR2(finpos.x - difference.x, finpos.y - difference.y);
 
-						// 当たっている面からプレイヤーの座標を修正する
-						/*switch (ColSurface)
-						{
-						case 0:
-							g_Player.nextpos.z = (z * MAPCHIP_SIZE_Z) - (MAPCHIP_SIZE_Z / 2) - (g_Player.colsize.z / 2);
-							ChangeBlockdata(2, x, y, z);
-							break;
-						case 1:
-							g_Player.nextpos.z = (z * MAPCHIP_SIZE_Z) + (MAPCHIP_SIZE_Z / 2) + (g_Player.colsize.z / 2);
-							ChangeBlockdata(2, x, y, z);
-							break;
-						case 2:
-							g_Player.nextpos.y = (y * MAPCHIP_SIZE_Y) + (MAPCHIP_SIZE_Y / 2) + (g_Player.colsize.y / 2);
-							ChangeBlockdata(2, x, y, z);
-							break;
-						case 3:
-							g_Player.nextpos.y = (y * MAPCHIP_SIZE_Y) - (MAPCHIP_SIZE_Y / 2) - (g_Player.colsize.y / 2);
-							ChangeBlockdata(2, x, y, z);
-							break;
-						case 4:
-							g_Player.nextpos.x = (x * MAPCHIP_SIZE_X) + (MAPCHIP_SIZE_X / 2) + (g_Player.colsize.x / 2);
-							ChangeBlockdata(2, x, y, z);
-							break;
-						case 5:
-							g_Player.nextpos.x = (x * MAPCHIP_SIZE_X) - (MAPCHIP_SIZE_X / 2) - (g_Player.colsize.x / 2);
-							ChangeBlockdata(2, x, y, z);
-							break;
-						}*/
+							// 最終的に求めた座標から角の座標を引いてあげればどれだけ被っているかがわかる
+							//D3DXVECTOR2 Cover = D3DXVECTOR2(LUF_block.x + finpos.x, LUF_block.z + finpos.y);
+							// そしてnextposに反映させる。または最終的にそうするようにする
+							//g_Player.nextpos.x = g_Player.nextpos.x - movedistance.x;
+							//g_Player.nextpos.z = g_Player.nextpos.z - movedistance.y;
+
+							float assx = g_Player.nextpos.x - movedistance.x;
+							float assy = g_Player.nextpos.z - movedistance.y;
+
+							SetScore(ratio * 100);
+							//SetScore1(radius + 1000);
+							//SetScore2(distance + 1000);
+							SetScore1(movedistance.x + 1000);
+							SetScore2(movedistance.y + 1000);
+							SetScore3(finpos.x + 1000);
+							SetScore4(finpos.y + 1000);
+							SetScore5(assx + 1000);
+							SetScore6(assy + 1000);
+
+						}
 					}
 				}
 
@@ -463,95 +411,8 @@ void UpdatePlayer(void)
 		}
 
 	}
-	//int hitcount = 0;		// 当たっているブロックの数
-	//D3DXVECTOR3 block_min = D3DXVECTOR3(999, 999, 999);
-	//D3DXVECTOR3 block_max = D3DXVECTOR3(-1, -1, -1);
-	//D3DXVECTOR3 block_last = D3DXVECTOR3(-1, -1, -1);
-
-	// 保存したblock_min等を使った座標計算
-	if (ColX == 0)		//プレイヤーは右に進もうとしている
-	{
-		if (block_max.x > -1)
-			g_Player.nextpos.x = (block_max.x * MAPCHIP_COLSIZE_X) - (MAPCHIP_COLSIZE_X / 2) - (g_Player.colsize.x / 2);
-	}
-	if (ColX == 1)		//プレイヤーは左に進もうとしている
-	{
-		if (block_min.x < 999)
-			g_Player.nextpos.x = (block_min.x * MAPCHIP_COLSIZE_X) + (MAPCHIP_COLSIZE_X / 2) + (g_Player.colsize.x / 2);
-	}
-	if (ColY == 0)		//プレイヤーは上に進もうとしている
-	{
-		if (block_max.y > -1)
-			g_Player.nextpos.y = (block_max.y * MAPCHIP_COLSIZE_Y) - (MAPCHIP_COLSIZE_Y / 2) - (g_Player.colsize.y / 2);
-	}
-	if (ColY == 1)		//プレイヤーは下に進もうとしている
-	{
-		if (block_min.y < 999)
-		{
-			g_Player.nextpos.y = (block_min.y * MAPCHIP_COLSIZE_Y) + (MAPCHIP_COLSIZE_Y / 2) + (g_Player.colsize.y / 2);
-		}
-	}
-	if (ColZ == 0)		//プレイヤーは奥に進もうとしている
-	{
-		if (block_max.z > -1)
-			g_Player.nextpos.z = (block_max.z * MAPCHIP_COLSIZE_Z) - (MAPCHIP_COLSIZE_Z / 2) - (g_Player.colsize.z / 2);
-	}
-	if (ColZ == 1)		//プレイヤーは手前に進もうとしている
-	{
-		if (block_min.z < 999)
-		{
-			g_Player.nextpos.z = (block_min.z * MAPCHIP_COLSIZE_Z) + (MAPCHIP_COLSIZE_Z / 2) + (g_Player.colsize.z / 2);
-		}
-	}
-
-	// 当たっているブロックが一つの場合はめちゃ良い
-	// oldblock_xとblock_max.xが同じブロックならnextpos.xはそのままでよい
-	if (block_max.x == block_min.x && oldblock_x == block_max.x)
-		g_Player.nextpos.x = InitNextpos.x;
-	if (block_max.y == block_min.y && oldblock_y == block_max.y)
-		g_Player.nextpos.y = InitNextpos.y;
-	if (block_max.z == block_min.z && oldblock_z == block_max.z)
-		g_Player.nextpos.z = InitNextpos.z;
-
-	// oldblock_xとblock_max.xが同じブロックならnextpos.xはそのままでよい
-	if (block_max.x == block_min.x)
-	{
-		if(oldblock_x == block_max.x || LeftBlockOld == block_max.x || RightBlockOld == block_max.x)
-			g_Player.nextpos.x = InitNextpos.x;
-	}
-	if (block_max.y == block_min.y && oldblock_y == block_max.y)
-		g_Player.nextpos.y = InitNextpos.y;
-	if (block_max.z == block_min.z && oldblock_z == block_max.z)
-		g_Player.nextpos.z = InitNextpos.z;
 
 
-
-
-	//int LeftBlockOld = (LUFold.x + (MAPCHIP_SIZE_X / 2)) / MAPCHIP_SIZE_X;
-	//int RightBlockOld = (RUFold.x + (MAPCHIP_SIZE_X / 2)) / MAPCHIP_SIZE_X;
-	//int UpBlockOld = (LUFold.y + (MAPCHIP_SIZE_Y / 2)) / MAPCHIP_SIZE_Y;
-	//int DownBlockOld = (LDFold.y + (MAPCHIP_SIZE_Y / 2)) / MAPCHIP_SIZE_Y;
-	//int FrontBlockOld = (LUFold.z + (MAPCHIP_SIZE_Z / 2)) / MAPCHIP_SIZE_Z;
-	//int BehindBlockOld = (LUBold.z + (MAPCHIP_SIZE_Z / 2)) / MAPCHIP_SIZE_Z;
-
-	//SetScore(hitcount);
-	SetScore(oldblock_x + 1000);
-	//SetScore(g_Player.oldpos.y + 1000);
-	SetScore1(block_max.x + 1000);
-	SetScore2(block_min.x + 1000);
-	SetScore3(block_max.y + 1000);
-	SetScore4(block_min.y + 1000);
-	SetScore5(block_max.z + 1000);
-	SetScore6(block_min.z + 1000);
-	//SetScore1(ColX + 1000);
-	//SetScore2(ColY + 1000);
-	//SetScore3(ColZ + 1000);
-	SetScore1(LeftBlockOld + 1000);
-	SetScore2(RightBlockOld + 1000);
-	SetScore3(UpBlockOld + 1000);
-	SetScore4(DownBlockOld + 1000);
-	SetScore5(FrontBlockOld + 1000);
-	SetScore6(BehindBlockOld + 1000);
 
 
 	// 当たり判定等の計算をnextposで行ったあと最後にposに反映させる

@@ -33,3 +33,4 @@ int CheckBlockdata(int BlockX, int BlockY, int BlockZ);
 void ChangeBlockdata(int changenum, int BlockX, int BlockY, int BlockZ);
 
 bool CheckHit(D3DXVECTOR3 obj1_pos, D3DXVECTOR3 obj1_colsize, D3DXVECTOR3 obj2_pos, D3DXVECTOR3 obj2_colsize);
+float CalculationDistance(float obj1pos1, float obj1pos2, float obj2pos1, float obj2pos2);
